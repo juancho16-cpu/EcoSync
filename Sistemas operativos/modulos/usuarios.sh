@@ -7,7 +7,12 @@ alta_usuario() {
         return
     fi
     useradd -m $usuario
-    passwd $usuario
+    if ! passwd $usuario; then
+        userdel -r $usuario
+        echo "No se pudo definir la contrasena, usuario no creado"
+        log_event "Error al crear el usuario $usuario"
+        return
+    fi
     log_event "Alta del usuario $usuario"
     echo "Usuario $usuario creado"
 }
