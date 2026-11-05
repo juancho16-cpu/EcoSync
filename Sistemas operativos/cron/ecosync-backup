@@ -1,0 +1,1 @@
+0 2 * * * root /opt/ecosync/ecosync.sh respaldo >> /var/log/ecosync/cron.log 2>&1
