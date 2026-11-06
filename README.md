@@ -7,7 +7,7 @@ Equipo: Valentín Ramírez (Coordinador), Joaquín Ximénez (Subcoordinador) y J
 
 ## Carpetas
 
-| Carpeta | Qué tiene |
+| materias | Qué tiene |
 | --- | --- |
 | [`Programacion/`](Programacion) | Todo el código del sistema: landing, frontend, las tres APIs, base de datos, Docker y seguridad. Trae todo el historial del repositorio original. |
 | [`Sistemas operativos/`](Sistemas%20operativos) | Script del servidor (`ecosync.sh`) con sus módulos. |
