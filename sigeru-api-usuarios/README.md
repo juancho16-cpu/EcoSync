@@ -19,7 +19,7 @@ conexion.php                  Conexión a la base de datos MySQL
 seguridad.php                 Revisa que haya sesión iniciada y que el rol tenga permiso
 correo.php                    Manda los correos con Gmail (usa la libreria PHPMailer)
 config_correo.php             Lee la cuenta de Gmail del archivo C:\xampp\sigeru_correo.php (fuera del proyecto)
-libs/PHPMailer/               Libreria PHPMailer 6.9.1 (solo los 3 archivos que se usan)
+libs/PHPMailer/               Libreria PHPMailer 6.12.0 (solo los 3 archivos que se usan)
 modelos/Usuario.php           Modelo (clase): guarda, busca, modifica y borra usuarios
 modelos/Parametro.php         Modelo (clase): parametros del sistema
 modelos/Mensaje.php           Modelo (clase): notificaciones de cada usuario
