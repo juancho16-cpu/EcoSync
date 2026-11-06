@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camiones | SiGeRU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="panel">
+    <aside class="sidebar">
+        <div class="logo-fila">
+            <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+        </div>
+        <!-- Lista de notificaciones (se abre al tocar la campana) -->
+        <div id="panelNotificaciones" class="panel-notificaciones">
+            <div class="panel-notificaciones-titulo">
+                <strong>Notificaciones</strong>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
+            </div>
+            <div id="listaMensajes"></div>
+        </div>
+        <div id="avisoEmergente" class="aviso-emergente"></div>
+        <nav class="menu">
+            <a href="panel.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#inicio"></use></svg><span>Inicio <span id="contadorAlertas" class="contador" title="Alertas"></span></span></a>
+            <a href="mapa.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mapa"></use></svg><span>Mapa</span></a>
+            <a href="incidencias.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg><span>Incidencias</span></a>
+            <a href="contenedores.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg><span>Contenedores</span></a>
+            <a href="camiones.html" class="activo no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg><span>Camiones</span></a>
+            <a href="recorridos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#recorridos"></use></svg><span>Recorridos</span></a>
+            <a href="centros.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#centros"></use></svg><span>Centros de acopio</span></a>
+            <a href="maquinaria.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg><span>Maquinaria</span></a>
+            <a href="repuestos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#repuestos"></use></svg><span>Repuestos</span></a>
+            <a href="informes.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg><span>Informes</span></a>
+            <a href="usuarios.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg><span>Usuarios</span></a>
+            <a href="parametros.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#parametros"></use></svg><span>Parámetros</span></a>
+            <a href="seguridad.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#escudo"></use></svg><span>Seguridad</span></a>
+        </nav>
+        <div class="usuario">
+            <div class="avatar"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuario"></use></svg></div>
+            <div class="usuario-datos">
+                <strong id="nombreUsuario"></strong>
+                <span id="rolUsuario"></span>
+            </div>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+        </div>
+    </aside>
+
+    <main class="contenido">
+        <div class="encabezado">
+            <div class="titulo-pagina">
+                <div class="icono-titulo"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg></div>
+                <div>
+                    <h1>Camiones</h1>
+                    <p class="subtitulo">Los camiones que salen a juntar la basura. Se ve si están funcionando, si están en la calle haciendo un recorrido o si están en el taller, y se anota cada arreglo o service que se les hace.</p>
+                </div>
+            </div>
+            <button class="btn btn-primary solo-gestion" data-click="nuevoCamion"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nuevo camión</button>
+        </div>
+
+        <div id="mensaje" class="mensaje"></div>
+
+        <!-- Ventana emergente (modal) con el formulario para agregar o modificar. Empieza oculta -->
+        <dialog id="formModal">
+            <h3 id="tituloModal"></h3>
+            <form id="formCamion">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="matricula">Matrícula *</label>
+                        <input id="matricula" placeholder="SBA 1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="capacidad_carga">Capacidad de carga (kg)</label>
+                        <input id="capacidad_carga" type="number" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select id="estado">
+                            <option>Operativo</option>
+                            <option>En mantenimiento</option>
+                            <option>Fuera de servicio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="disponibilidad">Disponibilidad</label>
+                        <select id="disponibilidad">
+                            <option>Disponible</option>
+                            <option>En ruta</option>
+                            <option>No disponible</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
+            </form>
+        </dialog>
+
+        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por matrícula o estado..." data-input="buscar"></div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Matrícula</th>
+                        <th>Capacidad</th>
+                        <th>Estado</th>
+                        <th>Disponibilidad</th>
+                        <th>Mantenimientos</th>
+                        <th class="solo-gestion">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCamiones"></tbody>
+            </table>
+        </div>
+
+        <!-- Ventana con los mantenimientos de un camion -->
+        <dialog id="mantenimientosModal" class="dialogo-ancho">
+            <h3 id="tituloMantenimientos"></h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Costo</th>
+                            <th>Descripción</th>
+                            <th class="solo-gestion"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaMantenimientos"></tbody>
+                </table>
+            </div>
+            <form id="formMantenimiento" class="solo-gestion form-mantenimiento">
+                <h4>Registrar un mantenimiento</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipoMantenimiento">Tipo *</label>
+                        <select id="tipoMantenimiento">
+                            <option>Preventivo</option>
+                            <option>Correctivo</option>
+                            <option>Revisión</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaMantenimiento">Fecha *</label>
+                        <input id="fechaMantenimiento" type="date" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="costoMantenimiento">Costo ($)</label>
+                        <input id="costoMantenimiento" type="number" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcionMantenimiento">Descripción</label>
+                        <input id="descripcionMantenimiento" placeholder="Por ejemplo: cambio de aceite">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </form>
+            <button type="button" class="btn btn-secondary boton-cerrar" data-click="cerrarMantenimientos">Cerrar</button>
+        </dialog>
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/idioma.js"></script>
+<script src="js/modelos/servidor.js"></script>
+<script src="js/modelos/usuarios.js"></script>
+<script src="js/modelos/gestion.js"></script>
+<script src="js/modelos/recoleccion.js"></script>
+<script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
+<script src="js/vistas/tablas.js"></script>
+<script src="js/vistas/notificaciones.js"></script>
+<script src="js/controladores/sesion.js"></script>
+<script src="js/controladores/camiones.js"></script>
+</body>
+</html>

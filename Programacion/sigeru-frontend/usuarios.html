@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios | SiGeRU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="panel">
+    <aside class="sidebar">
+        <div class="logo-fila">
+            <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+        </div>
+        <!-- Lista de notificaciones (se abre al tocar la campana) -->
+        <div id="panelNotificaciones" class="panel-notificaciones">
+            <div class="panel-notificaciones-titulo">
+                <strong>Notificaciones</strong>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
+            </div>
+            <div id="listaMensajes"></div>
+        </div>
+        <div id="avisoEmergente" class="aviso-emergente"></div>
+        <nav class="menu">
+            <a href="panel.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#inicio"></use></svg><span>Inicio <span id="contadorAlertas" class="contador" title="Alertas"></span></span></a>
+            <a href="mapa.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mapa"></use></svg><span>Mapa</span></a>
+            <a href="incidencias.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg><span>Incidencias</span></a>
+            <a href="contenedores.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg><span>Contenedores</span></a>
+            <a href="camiones.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg><span>Camiones</span></a>
+            <a href="recorridos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#recorridos"></use></svg><span>Recorridos</span></a>
+            <a href="centros.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#centros"></use></svg><span>Centros de acopio</span></a>
+            <a href="maquinaria.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg><span>Maquinaria</span></a>
+            <a href="repuestos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#repuestos"></use></svg><span>Repuestos</span></a>
+            <a href="informes.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg><span>Informes</span></a>
+            <a href="usuarios.html" class="activo solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg><span>Usuarios</span></a>
+            <a href="parametros.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#parametros"></use></svg><span>Parámetros</span></a>
+            <a href="seguridad.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#escudo"></use></svg><span>Seguridad</span></a>
+        </nav>
+        <div class="usuario">
+            <div class="avatar"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuario"></use></svg></div>
+            <div class="usuario-datos">
+                <strong id="nombreUsuario"></strong>
+                <span id="rolUsuario"></span>
+            </div>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+        </div>
+    </aside>
+
+    <main class="contenido">
+        <div class="encabezado">
+            <div class="titulo-pagina">
+                <div class="icono-titulo"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg></div>
+                <div>
+                    <h1>Usuarios</h1>
+                    <p class="subtitulo">Todas las personas que usan SiGeRU. Desde acá se crean cuentas, se aprueba a los vecinos que se registran y se cambia el rol de cada uno.</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" data-click="nuevoUsuario"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nuevo usuario</button>
+        </div>
+
+        <div id="mensaje" class="mensaje"></div>
+        <div id="avisoSolicitudes" class="aviso-solicitudes"></div>
+
+        <!-- Ventana emergente (modal) con el formulario para agregar o modificar. Empieza oculta -->
+        <dialog id="formModal">
+            <h3 id="tituloModal"></h3>
+            <form id="formUsuario">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="primer_nombre">Nombre *</label>
+                        <input id="primer_nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="primer_apellido">Apellido *</label>
+                        <input id="primer_apellido" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Correo electrónico *</label>
+                        <input id="email" type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input id="telefono" type="tel">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rol">Rol *</label>
+                        <select id="rol">
+                            <option>Vecino</option>
+                            <option>Recolector</option>
+                            <option>Operario</option>
+                            <option>Administrador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contrasena">Contraseña</label>
+                        <input id="contrasena" type="password" minlength="8" maxlength="72" pattern="(?=.*[A-Za-z])(?=.*[0-9]).(8, 72)" title="Al menos 8 caracteres, con letras y números">
+                        <small id="ayudaContrasena">Al menos 8 caracteres, con letras y números.</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="calle">Calle <small>(vecinos)</small></label>
+                        <input id="calle">
+                    </div>
+                    <div class="form-group">
+                        <label for="zona">Zona <small>(vecinos)</small></label>
+                        <input id="zona">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="especialidad">Especialidad <small>(operarios)</small></label>
+                    <input id="especialidad">
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
+            </form>
+        </dialog>
+
+        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por nombre, correo, rol o estado..." data-input="buscar"></div>
+
+        <div class="table-container">
+            <table class="tabla-tarjetas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Zona</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+        </div>
+
+        <!-- Ventana para cambiarle el rol a un usuario -->
+        <dialog id="rolModal">
+            <h3>Cambiar el rol</h3>
+            <p id="nombreCambioRol" class="subtitulo"></p>
+            <form id="formRol">
+                <div class="form-group">
+                    <label for="nuevoRol">Nuevo rol</label>
+                    <select id="nuevoRol" data-change="mostrarEspecialidadRol">
+                        <option>Vecino</option>
+                        <option>Recolector</option>
+                        <option>Operario</option>
+                        <option>Administrador</option>
+                    </select>
+                </div>
+                <div id="cajaEspecialidadRol" class="form-group">
+                    <label for="especialidadRol">Especialidad <small>(operarios)</small></label>
+                    <input id="especialidadRol" placeholder="Por ejemplo: mantenimiento de contenedores">
+                </div>
+                <button type="submit" class="btn btn-primary">Cambiar rol</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarCambioRol">Cancelar</button>
+            </form>
+        </dialog>
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/idioma.js"></script>
+<script src="js/modelos/servidor.js"></script>
+<script src="js/modelos/usuarios.js"></script>
+<script src="js/modelos/gestion.js"></script>
+<script src="js/modelos/recoleccion.js"></script>
+<script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
+<script src="js/vistas/tablas.js"></script>
+<script src="js/vistas/notificaciones.js"></script>
+<script src="js/controladores/sesion.js"></script>
+<script src="js/controladores/usuarios.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maquinaria | SiGeRU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="panel">
+    <aside class="sidebar">
+        <div class="logo-fila">
+            <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+        </div>
+        <!-- Lista de notificaciones (se abre al tocar la campana) -->
+        <div id="panelNotificaciones" class="panel-notificaciones">
+            <div class="panel-notificaciones-titulo">
+                <strong>Notificaciones</strong>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
+            </div>
+            <div id="listaMensajes"></div>
+        </div>
+        <div id="avisoEmergente" class="aviso-emergente"></div>
+        <nav class="menu">
+            <a href="panel.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#inicio"></use></svg><span>Inicio <span id="contadorAlertas" class="contador" title="Alertas"></span></span></a>
+            <a href="mapa.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mapa"></use></svg><span>Mapa</span></a>
+            <a href="incidencias.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg><span>Incidencias</span></a>
+            <a href="contenedores.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg><span>Contenedores</span></a>
+            <a href="camiones.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg><span>Camiones</span></a>
+            <a href="recorridos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#recorridos"></use></svg><span>Recorridos</span></a>
+            <a href="centros.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#centros"></use></svg><span>Centros de acopio</span></a>
+            <a href="maquinaria.html" class="activo no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg><span>Maquinaria</span></a>
+            <a href="repuestos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#repuestos"></use></svg><span>Repuestos</span></a>
+            <a href="informes.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg><span>Informes</span></a>
+            <a href="usuarios.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg><span>Usuarios</span></a>
+            <a href="parametros.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#parametros"></use></svg><span>Parámetros</span></a>
+            <a href="seguridad.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#escudo"></use></svg><span>Seguridad</span></a>
+        </nav>
+        <div class="usuario">
+            <div class="avatar"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuario"></use></svg></div>
+            <div class="usuario-datos">
+                <strong id="nombreUsuario"></strong>
+                <span id="rolUsuario"></span>
+            </div>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+        </div>
+    </aside>
+
+    <main class="contenido">
+        <div class="encabezado">
+            <div class="titulo-pagina">
+                <div class="icono-titulo"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg></div>
+                <div>
+                    <h1>Maquinaria</h1>
+                    <p class="subtitulo">Las máquinas que se usan en los centros y vertederos, como prensas o cintas para separar, y si están funcionando o en arreglo.</p>
+                </div>
+            </div>
+            <button class="btn btn-primary solo-gestion" data-click="nuevaMaquina"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nueva máquina</button>
+        </div>
+
+        <div id="mensaje" class="mensaje"></div>
+
+        <!-- Ventana emergente (modal) con el formulario para agregar o modificar. Empieza oculta -->
+        <dialog id="formModal">
+            <h3 id="tituloModal"></h3>
+            <form id="formMaquina">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre *</label>
+                        <input id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <input id="tipo" placeholder="Compactadora, clasificadora...">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select id="estado">
+                            <option>Operativa</option>
+                            <option>En reparación</option>
+                            <option>Fuera de servicio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_instalacion">Instalación donde está</label>
+                        <select id="id_instalacion">
+                            <option value="">Sin asignar</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
+            </form>
+        </dialog>
+
+        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por nombre, tipo, estado o instalación..." data-input="buscar"></div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Instalación</th>
+                        <th class="solo-gestion">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaMaquinaria"></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/idioma.js"></script>
+<script src="js/modelos/servidor.js"></script>
+<script src="js/modelos/usuarios.js"></script>
+<script src="js/modelos/gestion.js"></script>
+<script src="js/modelos/recoleccion.js"></script>
+<script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
+<script src="js/vistas/tablas.js"></script>
+<script src="js/vistas/notificaciones.js"></script>
+<script src="js/controladores/sesion.js"></script>
+<script src="js/controladores/maquinaria.js"></script>
+</body>
+</html>

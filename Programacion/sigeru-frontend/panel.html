@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel | SiGeRU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="panel">
+    <aside class="sidebar">
+        <div class="logo-fila">
+            <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+        </div>
+        <!-- Lista de notificaciones (se abre al tocar la campana) -->
+        <div id="panelNotificaciones" class="panel-notificaciones">
+            <div class="panel-notificaciones-titulo">
+                <strong>Notificaciones</strong>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
+            </div>
+            <div id="listaMensajes"></div>
+        </div>
+        <div id="avisoEmergente" class="aviso-emergente"></div>
+        <nav class="menu">
+            <a href="panel.html" class="activo"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#inicio"></use></svg><span>Inicio <span id="contadorAlertas" class="contador" title="Alertas"></span></span></a>
+            <a href="mapa.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mapa"></use></svg><span>Mapa</span></a>
+            <a href="incidencias.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg><span>Incidencias</span></a>
+            <a href="contenedores.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg><span>Contenedores</span></a>
+            <a href="camiones.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg><span>Camiones</span></a>
+            <a href="recorridos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#recorridos"></use></svg><span>Recorridos</span></a>
+            <a href="centros.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#centros"></use></svg><span>Centros de acopio</span></a>
+            <a href="maquinaria.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg><span>Maquinaria</span></a>
+            <a href="repuestos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#repuestos"></use></svg><span>Repuestos</span></a>
+            <a href="informes.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg><span>Informes</span></a>
+            <a href="usuarios.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg><span>Usuarios</span></a>
+            <a href="parametros.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#parametros"></use></svg><span>Parámetros</span></a>
+            <a href="seguridad.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#escudo"></use></svg><span>Seguridad</span></a>
+        </nav>
+        <div class="usuario">
+            <div class="avatar"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuario"></use></svg></div>
+            <div class="usuario-datos">
+                <strong id="nombreUsuario"></strong>
+                <span id="rolUsuario"></span>
+            </div>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+        </div>
+    </aside>
+
+    <main class="contenido">
+        <div class="bienvenida">
+            <div>
+                <p class="bienvenida-fecha" id="fechaHoy"></p>
+                <h1>Hola, <span id="saludo"></span></h1>
+                <p class="subtitulo">Acá tenés un resumen de cómo viene todo hoy: cuántos contenedores hay, cuáles tienen problemas,
+                   las alertas que hay que atender y los números del mes.</p>
+            </div>
+        </div>
+
+        <div id="mensaje" class="mensaje"></div>
+
+        <div class="dashboard-grid">
+            <div class="stat">
+                <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg></div>
+                <strong id="totalContenedores">-</strong>
+                <span>Contenedores</span>
+            </div>
+            <div class="stat">
+                <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#alerta"></use></svg></div>
+                <strong id="contenedoresProblema">-</strong>
+                <span>Contenedores rotos o desbordados</span>
+            </div>
+            <div class="stat no-vecino">
+                <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg></div>
+                <strong id="totalCamiones">-</strong>
+                <span>Camiones</span>
+            </div>
+            <div class="stat solo-admin">
+                <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg></div>
+                <strong id="totalUsuarios">-</strong>
+                <span>Usuarios</span>
+            </div>
+        </div>
+
+        <h2 class="titulo-seccion" id="alertas"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg>Alertas</h2>
+        <p class="subtitulo">Cosas que necesitan que alguien se fije: contenedores que se llenaron y nadie fue, incidencias urgentes,
+           centros que se están llenando o repuestos que se están terminando.</p>
+        <div id="listaAlertas" class="lista-alertas"><p class="texto-gris">Cargando...</p></div>
+
+        <section class="no-vecino">
+            <div class="mapa-barra">
+                <h2 class="titulo-seccion"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#grafico"></use></svg>Estadísticas del mes</h2>
+                <div class="filtros">
+                    <label for="mesEstadisticas">Mes</label>
+                    <input id="mesEstadisticas" type="month" data-change="cargarEstadisticas">
+                </div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="stat">
+                    <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#alerta"></use></svg></div>
+                    <strong id="statAbiertas">-</strong>
+                    <span>Incidencias abiertas</span>
+                </div>
+                <div class="stat">
+                    <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#herramienta"></use></svg></div>
+                    <strong id="statEnProceso">-</strong>
+                    <span>Incidencias en proceso</span>
+                </div>
+                <div class="stat">
+                    <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#ok"></use></svg></div>
+                    <strong id="statResueltasMes">-</strong>
+                    <span>Resueltas en el mes</span>
+                </div>
+                <div class="stat">
+                    <div class="stat-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#reloj"></use></svg></div>
+                    <strong id="statPromedio">-</strong>
+                    <span>Tiempo promedio de resolución</span>
+                </div>
+            </div>
+            <div class="graficos">
+                <div class="card grafico-ancho">
+                    <h3><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#trofeo"></use></svg>Los contenedores que más se llenaron este mes</h3>
+                    <div id="graficoTop"></div>
+                </div>
+                <div class="card">
+                    <h3><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#pin"></use></svg>Problemas sin resolver en cada municipio</h3>
+                    <div id="graficoMunicipios"></div>
+                </div>
+                <div class="card">
+                    <h3><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#grafico"></use></svg>Qué tipo de problemas hubo este mes</h3>
+                    <div id="graficoTipos"></div>
+                </div>
+            </div>
+        </section>
+
+        <h2 class="titulo-seccion"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg>¿A dónde querés ir?</h2>
+        <div class="cards">
+            <a class="card card-enlace solo-vecino" href="incidencias.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg></div>
+                <h3>Reportar un problema</h3>
+                <p>¿Viste un contenedor lleno, roto, que no lo vinieron a vaciar o basura tirada en la calle? Contanos qué pasó y dónde, y seguí cómo va hasta que lo arreglen.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace" href="mapa.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mapa"></use></svg></div>
+                <h3>Mapa de Montevideo</h3>
+                <p>Todos los contenedores en el mapa, con su color según cómo están. El personal ve además los problemas, los camiones, los recorridos y las zonas con más problemas.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace no-vecino" href="incidencias.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg></div>
+                <h3>Incidencias</h3>
+                <p>Los problemas que reportan los vecinos y el personal. Desde acá se le asigna una cuadrilla a cada uno y se sigue hasta que queda resuelto.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace no-vecino" href="informes.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg></div>
+                <h3>Informes</h3>
+                <p>Elegís dos fechas y ves cuántos problemas hubo, cuántos se arreglaron y cuántos kilos de basura se juntaron. Se puede imprimir o pasar a Excel.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace" href="contenedores.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg></div>
+                <h3>Contenedores</h3>
+                <p>Dónde está cada contenedor, qué tipo de residuo lleva (orgánico, reciclable...) y si está funcionando, roto o desbordado.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace no-vecino" href="camiones.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg></div>
+                <h3>Camiones</h3>
+                <p>Los camiones que salen a juntar la basura: cuáles están funcionando, cuáles están en la calle y cuáles en el taller, con todos sus arreglos anotados.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace no-vecino" href="centros.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#centros"></use></svg></div>
+                <h3>Centros de acopio</h3>
+                <p>Los lugares a donde se lleva lo que se junta: cuánto tienen guardado, cuánto les entra, quién está a cargo y qué residuos aceptan.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace no-vecino" href="maquinaria.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg></div>
+                <h3>Maquinaria</h3>
+                <p>Las máquinas de los centros y vertederos, como las prensas o las cintas para separar, y si están andando o en arreglo.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace no-vecino" href="repuestos.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#repuestos"></use></svg></div>
+                <h3>Repuestos</h3>
+                <p>Lo que hay guardado para cambiar cuando algo se rompe: contenedores enteros, tapas y ruedas. Si se está terminando algo, avisa.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+            <a class="card card-enlace solo-admin" href="usuarios.html">
+                <div class="card-icono"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg></div>
+                <h3>Usuarios</h3>
+                <p>Las personas que usan SiGeRU. Desde acá se crean cuentas, se aprueba a los vecinos que se registran y se cambia el rol de cada uno.</p>
+                <span class="card-ir">Entrar <svg class="icono" aria-hidden="true"><use href="img/iconos.svg#flecha"></use></svg></span>
+            </a>
+        </div>
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/idioma.js"></script>
+<script src="js/modelos/servidor.js"></script>
+<script src="js/modelos/usuarios.js"></script>
+<script src="js/modelos/gestion.js"></script>
+<script src="js/modelos/recoleccion.js"></script>
+<script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
+<script src="js/vistas/tablas.js"></script>
+<script src="js/vistas/notificaciones.js"></script>
+<script src="js/vistas/panel.js"></script>
+<script src="js/controladores/sesion.js"></script>
+<script src="js/controladores/panel.js"></script>
+</body>
+</html>

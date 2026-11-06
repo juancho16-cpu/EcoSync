@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informes | SiGeRU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="panel">
+    <aside class="sidebar">
+        <div class="logo-fila">
+            <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+        </div>
+        <!-- Lista de notificaciones (se abre al tocar la campana) -->
+        <div id="panelNotificaciones" class="panel-notificaciones">
+            <div class="panel-notificaciones-titulo">
+                <strong>Notificaciones</strong>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
+            </div>
+            <div id="listaMensajes"></div>
+        </div>
+        <div id="avisoEmergente" class="aviso-emergente"></div>
+        <nav class="menu">
+            <a href="panel.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#inicio"></use></svg><span>Inicio <span id="contadorAlertas" class="contador" title="Alertas"></span></span></a>
+            <a href="mapa.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mapa"></use></svg><span>Mapa</span></a>
+            <a href="incidencias.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#incidencias"></use></svg><span>Incidencias</span></a>
+            <a href="contenedores.html"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#contenedores"></use></svg><span>Contenedores</span></a>
+            <a href="camiones.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#camiones"></use></svg><span>Camiones</span></a>
+            <a href="recorridos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#recorridos"></use></svg><span>Recorridos</span></a>
+            <a href="centros.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#centros"></use></svg><span>Centros de acopio</span></a>
+            <a href="maquinaria.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#maquinaria"></use></svg><span>Maquinaria</span></a>
+            <a href="repuestos.html" class="no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#repuestos"></use></svg><span>Repuestos</span></a>
+            <a href="informes.html" class="activo no-vecino"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg><span>Informes</span></a>
+            <a href="usuarios.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuarios"></use></svg><span>Usuarios</span></a>
+            <a href="parametros.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#parametros"></use></svg><span>Parámetros</span></a>
+            <a href="seguridad.html" class="solo-admin"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#escudo"></use></svg><span>Seguridad</span></a>
+        </nav>
+        <div class="usuario">
+            <div class="avatar"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#usuario"></use></svg></div>
+            <div class="usuario-datos">
+                <strong id="nombreUsuario"></strong>
+                <span id="rolUsuario"></span>
+            </div>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+        </div>
+    </aside>
+
+    <main class="contenido">
+        <div class="encabezado no-imprimir">
+            <div class="titulo-pagina">
+                <div class="icono-titulo"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#informes"></use></svg></div>
+                <div>
+                    <h1>Informes</h1>
+                    <p class="subtitulo">Elegí entre qué fechas querés ver y te armamos el resumen: cuántos problemas hubo, cuántos se arreglaron,
+                       cuánto se tardó y cuántos kilos de basura se juntaron. Lo podés imprimir o bajar para abrir en Excel.</p>
+                </div>
+            </div>
+            <div class="botones-mapa">
+                <button class="btn btn-secondary" data-click="exportarIncidencias"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#descargar"></use></svg>Incidencias (Excel)</button>
+                <button class="btn btn-secondary" data-click="exportarVolumen"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#descargar"></use></svg>Recolecciones (Excel)</button>
+                <button class="btn btn-secondary" data-click="imprimir"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#imprimir"></use></svg>Imprimir</button>
+            </div>
+        </div>
+
+        <div id="mensaje" class="mensaje"></div>
+
+        <div class="filtros barra-filtros no-imprimir">
+            <label for="desde">Desde</label>
+            <input id="desde" type="date">
+            <label for="hasta">Hasta</label>
+            <input id="hasta" type="date">
+            <select id="cuales">
+                <option value="todas">Abiertas y cerradas</option>
+                <option value="abiertas">Solo abiertas (sin resolver)</option>
+                <option value="cerradas">Solo cerradas (resueltas)</option>
+            </select>
+            <button class="btn btn-primary btn-sm" data-click="verInforme">Ver informe</button>
+        </div>
+
+        <!-- Lo que sigue es lo que sale en la hoja al imprimir -->
+        <div class="solo-imprimir">
+            <strong>SiGeRU - EcoSync</strong>
+        </div>
+        <h2 id="tituloInforme" class="titulo-seccion"></h2>
+
+        <div class="dashboard-grid">
+            <div class="stat">
+                <strong id="totalInforme">-</strong>
+                <span>Incidencias en total</span>
+            </div>
+            <div class="stat">
+                <strong id="abiertasInforme">-</strong>
+                <span>Abiertas (sin resolver)</span>
+            </div>
+            <div class="stat">
+                <strong id="cerradasInforme">-</strong>
+                <span>Cerradas (resueltas)</span>
+            </div>
+            <div class="stat">
+                <strong id="promedioInforme">-</strong>
+                <span>Tiempo promedio de resolución</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Detectada</th>
+                        <th>Contenedor</th>
+                        <th>Municipio</th>
+                        <th>Tipo</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Resuelta</th>
+                        <th>Días</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaInforme"></tbody>
+            </table>
+        </div>
+
+        <h2 class="titulo-seccion seccion-volumen"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#reciclar"></use></svg>Cuánta basura se juntó</h2>
+        <p class="subtitulo">Los kilos que se sacaron cada vez que se vació un contenedor entre esas fechas. Como no tenemos balanzas
+           en los camiones, los kilos se calculan según el tamaño del contenedor (son datos simulados).</p>
+        <div class="dashboard-grid">
+            <div class="stat">
+                <strong id="volKilos">-</strong>
+                <span>Kilos recolectados</span>
+            </div>
+            <div class="stat">
+                <strong id="volVaciados">-</strong>
+                <span>Vaciados de contenedores</span>
+            </div>
+            <div class="stat">
+                <strong id="volPromedio">-</strong>
+                <span>Promedio por vaciado</span>
+            </div>
+            <div class="stat">
+                <strong id="volFrecuencia">-</strong>
+                <span>Frecuencia de recolección</span>
+            </div>
+        </div>
+        <div class="graficos">
+            <div class="card">
+                <h3><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#pin"></use></svg>Kilos por municipio</h3>
+                <div id="graficoVolMunicipio"></div>
+            </div>
+            <div class="card">
+                <h3><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#reciclar"></use></svg>Kilos por tipo de residuo</h3>
+                <div id="graficoVolResiduo"></div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Contenedor</th>
+                        <th>Municipio</th>
+                        <th>Vaciados</th>
+                        <th>Kilos</th>
+                        <th>Último vaciado</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaVolumen"></tbody>
+            </table>
+        </div>
+        <p id="fechaImpresion" class="texto-gris pie-informe"></p>
+    </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/idioma.js"></script>
+<script src="js/modelos/servidor.js"></script>
+<script src="js/modelos/usuarios.js"></script>
+<script src="js/modelos/gestion.js"></script>
+<script src="js/modelos/recoleccion.js"></script>
+<script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
+<script src="js/vistas/tablas.js"></script>
+<script src="js/vistas/notificaciones.js"></script>
+<script src="js/vistas/panel.js"></script>
+<script src="js/controladores/sesion.js"></script>
+<script src="js/controladores/informes.js"></script>
+</body>
+</html>

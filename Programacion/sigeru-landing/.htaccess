@@ -1,0 +1,17 @@
+# Evita que se pueda ver la lista de archivos de las carpetas
+Options -Indexes
+
+# Cabeceras de seguridad (si Apache tiene el modulo headers)
+<IfModule mod_headers.c>
+    # El navegador no adivina el tipo de archivo
+    Header always set X-Content-Type-Options "nosniff"
+    # Ninguna otra pagina puede mostrar SiGeRU dentro de un iframe (evita clickjacking)
+    Header always set X-Frame-Options "DENY"
+    # No se manda la direccion completa a otros sitios
+    Header always set Referrer-Policy "same-origin"
+    # El sistema no usa camara ni microfono
+    Header always set Permissions-Policy "camera=(), microphone=()"
+    # Politica de contenido (CSP): el navegador solo ejecuta los .js de la landing.
+    # Afuera solo se permite la letra de Google Fonts. El video de fondo es un archivo propio.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+</IfModule>
