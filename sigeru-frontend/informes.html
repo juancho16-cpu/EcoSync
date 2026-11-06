@@ -13,13 +13,13 @@
     <aside class="sidebar">
         <div class="logo-fila">
             <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
-            <button class="campana" onclick="abrirNotificaciones()" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
         </div>
         <!-- Lista de notificaciones (se abre al tocar la campana) -->
         <div id="panelNotificaciones" class="panel-notificaciones">
             <div class="panel-notificaciones-titulo">
                 <strong>Notificaciones</strong>
-                <button class="btn btn-secondary btn-sm" onclick="leerTodos()">Marcar todas como leídas</button>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
             </div>
             <div id="listaMensajes"></div>
         </div>
@@ -45,7 +45,7 @@
                 <strong id="nombreUsuario"></strong>
                 <span id="rolUsuario"></span>
             </div>
-            <button class="boton-salir" onclick="salir()" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
         </div>
     </aside>
 
@@ -60,9 +60,9 @@
                 </div>
             </div>
             <div class="botones-mapa">
-                <button class="btn btn-secondary" onclick="exportarIncidencias()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#descargar"></use></svg>Incidencias (Excel)</button>
-                <button class="btn btn-secondary" onclick="exportarVolumen()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#descargar"></use></svg>Recolecciones (Excel)</button>
-                <button class="btn btn-secondary" onclick="imprimir()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#imprimir"></use></svg>Imprimir</button>
+                <button class="btn btn-secondary" data-click="exportarIncidencias"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#descargar"></use></svg>Incidencias (Excel)</button>
+                <button class="btn btn-secondary" data-click="exportarVolumen"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#descargar"></use></svg>Recolecciones (Excel)</button>
+                <button class="btn btn-secondary" data-click="imprimir"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#imprimir"></use></svg>Imprimir</button>
             </div>
         </div>
 
@@ -78,7 +78,7 @@
                 <option value="abiertas">Solo abiertas (sin resolver)</option>
                 <option value="cerradas">Solo cerradas (resueltas)</option>
             </select>
-            <button class="btn btn-primary btn-sm" onclick="verInforme()">Ver informe</button>
+            <button class="btn btn-primary btn-sm" data-click="verInforme">Ver informe</button>
         </div>
 
         <!-- Lo que sigue es lo que sale en la hoja al imprimir -->
@@ -182,6 +182,7 @@
 <script src="js/modelos/gestion.js"></script>
 <script src="js/modelos/recoleccion.js"></script>
 <script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
 <script src="js/vistas/tablas.js"></script>
 <script src="js/vistas/notificaciones.js"></script>
 <script src="js/vistas/panel.js"></script>

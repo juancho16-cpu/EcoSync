@@ -34,7 +34,7 @@ function mostrarListaMensajes(lista) {
         if (m.leido == 0) {
             clase = "mensaje-item sin-leer";
         }
-        html += `<a class="${clase}" href="#" onclick="abrirMensaje(${m.id}, '${limpiarTexto(m.enlace)}'); return false;">
+        html += `<a class="${clase}" href="#" data-click="abrirMensaje" data-args="${m.id},${limpiarTexto(m.enlace)}">
             ${limpiarTexto(m.texto)}
             <small>${fechaCorta(m.fecha)}</small>
         </a>`;

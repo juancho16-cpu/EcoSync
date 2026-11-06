@@ -13,13 +13,13 @@
     <aside class="sidebar">
         <div class="logo-fila">
             <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
-            <button class="campana" onclick="abrirNotificaciones()" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
         </div>
         <!-- Lista de notificaciones (se abre al tocar la campana) -->
         <div id="panelNotificaciones" class="panel-notificaciones">
             <div class="panel-notificaciones-titulo">
                 <strong>Notificaciones</strong>
-                <button class="btn btn-secondary btn-sm" onclick="leerTodos()">Marcar todas como leídas</button>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
             </div>
             <div id="listaMensajes"></div>
         </div>
@@ -45,7 +45,7 @@
                 <strong id="nombreUsuario"></strong>
                 <span id="rolUsuario"></span>
             </div>
-            <button class="boton-salir" onclick="salir()" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
         </div>
     </aside>
 
@@ -58,7 +58,7 @@
                     <p class="subtitulo">Acá se arma qué cuadrilla sale, por qué ruta, con qué camión y en qué horario. Solo se puede usar un camión que esté funcionando y libre (RNE06).</p>
                 </div>
             </div>
-            <button class="btn btn-primary solo-gestion" onclick="nuevoRecorrido()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Asignar recorrido</button>
+            <button class="btn btn-primary solo-gestion" data-click="nuevoRecorrido"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Asignar recorrido</button>
         </div>
 
         <div id="mensaje" class="mensaje"></div>
@@ -106,7 +106,7 @@
                     <small>Cada zona la recorre un solo recorrido: si la marcas, deja de estar en el otro.</small>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
             </form>
         </dialog>
 
@@ -137,6 +137,7 @@
 <script src="js/modelos/gestion.js"></script>
 <script src="js/modelos/recoleccion.js"></script>
 <script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
 <script src="js/vistas/tablas.js"></script>
 <script src="js/vistas/notificaciones.js"></script>
 <script src="js/controladores/sesion.js"></script>

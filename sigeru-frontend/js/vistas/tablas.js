@@ -4,8 +4,8 @@
 // y se usa para llamar a la funcion que corresponde (por ejemplo editarCamion(3)).
 function botonesAcciones(tipo, id) {
     return `<td class="acciones">
-        <button class="btn btn-secondary btn-sm" onclick="editar${tipo}(${id})">${traducir("Editar")}</button>
-        <button class="btn btn-danger btn-sm" onclick="borrar${tipo}Elegido(${id})">${traducir("Borrar")}</button>
+        <button class="btn btn-secondary btn-sm" data-click="editar${tipo}" data-args="${id}">${traducir("Editar")}</button>
+        <button class="btn btn-danger btn-sm" data-click="borrar${tipo}Elegido" data-args="${id}">${traducir("Borrar")}</button>
     </td>`;
 }
 
@@ -23,27 +23,34 @@ function mostrarTablaUsuarios(lista, conAcciones) {
         return;
     }
 
+    // data-etiqueta es el nombre de la columna: en el celular la tabla se ve como tarjetas
+    // y cada dato muestra su nombre al lado (ver .tabla-tarjetas en styles.css)
     let filas = "";
     for (const u of lista) {
-        filas += `<tr>
-            <td>${u.id}</td>
-            <td>${limpiarTexto(u.primer_nombre)} ${limpiarTexto(u.primer_apellido)}</td>
-            <td>${limpiarTexto(u.email)}</td>
-            <td>${limpiarTexto(u.telefono)}</td>
-            <td>${limpiarTexto(u.zona)}</td>
-            <td><span class="etiqueta">${limpiarTexto(u.rol)}</span></td>
-            <td><span class="etiqueta ${colorEstado(u.estado)}">${limpiarTexto(u.estado)}</span></td>`;
+        // Las solicitudes pendientes se marcan para que resalten en el celular
+        let clase = "";
+        if (u.estado == "Pendiente") {
+            clase = "fila-pendiente";
+        }
+        filas += `<tr class="${clase}">
+            <td data-etiqueta="ID">${u.id}</td>
+            <td data-etiqueta="Nombre">${limpiarTexto(u.primer_nombre)} ${limpiarTexto(u.primer_apellido)}</td>
+            <td data-etiqueta="Correo">${limpiarTexto(u.email)}</td>
+            <td data-etiqueta="Teléfono">${limpiarTexto(u.telefono)}</td>
+            <td data-etiqueta="Zona">${limpiarTexto(u.zona)}</td>
+            <td data-etiqueta="Rol"><span class="etiqueta">${limpiarTexto(u.rol)}</span></td>
+            <td data-etiqueta="Estado"><span class="etiqueta ${colorEstado(u.estado)}">${limpiarTexto(u.estado)}</span></td>`;
         if (conAcciones && u.estado == "Pendiente") {
             // Vecino que se registro y espera que lo aprueben
             filas += `<td class="acciones">
-                <button class="btn btn-primary btn-sm" onclick="aprobarElegido(${u.id}, true)">${icono("check")}Aprobar</button>
-                <button class="btn btn-danger btn-sm" onclick="aprobarElegido(${u.id}, false)">${icono("cerrar")}Rechazar</button>
+                <button class="btn btn-primary btn-sm" data-click="aprobarElegido" data-args="${u.id},true">${icono("check")}Aprobar</button>
+                <button class="btn btn-danger btn-sm" data-click="aprobarElegido" data-args="${u.id},false">${icono("cerrar")}Rechazar</button>
             </td>`;
         } else if (conAcciones) {
             filas += `<td class="acciones">
-                <button class="btn btn-secondary btn-sm" onclick="editarUsuario(${u.id})">${traducir("Editar")}</button>
-                <button class="btn btn-secondary btn-sm" onclick="abrirCambioRol(${u.id})">${icono("llave")}${traducir("Rol")}</button>
-                <button class="btn btn-danger btn-sm" onclick="borrarUsuarioElegido(${u.id})">${traducir("Borrar")}</button>
+                <button class="btn btn-secondary btn-sm" data-click="editarUsuario" data-args="${u.id}">${traducir("Editar")}</button>
+                <button class="btn btn-secondary btn-sm" data-click="abrirCambioRol" data-args="${u.id}">${icono("llave")}${traducir("Rol")}</button>
+                <button class="btn btn-danger btn-sm" data-click="borrarUsuarioElegido" data-args="${u.id}">${traducir("Borrar")}</button>
             </td>`;
         }
         filas += `</tr>`;
@@ -93,7 +100,7 @@ function mostrarTablaCamiones(lista, conAcciones) {
             <td>${c.capacidad_carga ? Number(c.capacidad_carga) + " kg" : ""}</td>
             <td><span class="etiqueta ${colorEstado(c.estado)}">${limpiarTexto(c.estado)}</span></td>
             <td><span class="etiqueta ${colorEstado(c.disponibilidad)}">${limpiarTexto(c.disponibilidad)}</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="verMantenimientos(${c.id})">${icono("herramienta")}Ver</button></td>`;
+            <td><button class="btn btn-secondary btn-sm" data-click="verMantenimientos" data-args="${c.id}">${icono("herramienta")}Ver</button></td>`;
         if (conAcciones) {
             filas += botonesAcciones("Camion", c.id);
         }
@@ -200,7 +207,7 @@ function mostrarTablaMantenimientos(lista, conAcciones) {
             <td>${m.costo ? "$ " + Number(m.costo) : ""}</td>
             <td class="ajustar">${limpiarTexto(m.descripcion)}</td>`;
         if (conAcciones) {
-            filas += `<td><button class="btn btn-danger btn-sm" onclick="borrarMantenimientoElegido(${m.id_camion}, ${m.nro})">Borrar</button></td>`;
+            filas += `<td><button class="btn btn-danger btn-sm" data-click="borrarMantenimientoElegido" data-args="${m.id_camion},${m.nro}">Borrar</button></td>`;
         }
         filas += `</tr>`;
     }
@@ -276,10 +283,10 @@ function mostrarTablaIncidencias(lista) {
     for (const i of lista) {
         let botones = "";
         if (i.puedeCambiar) {
-            botones += `<button class="btn btn-primary btn-sm" onclick="abrirSeguimiento(${i.id})">${traducir("Seguimiento")}</button>`;
+            botones += `<button class="btn btn-primary btn-sm" data-click="abrirSeguimiento" data-args="${i.id}">${traducir("Seguimiento")}</button>`;
         }
         if (i.conHistorial) {
-            botones += `<button class="btn btn-secondary btn-sm" onclick="verHistorial(${i.id_contenedor})">${traducir("Historial")}</button>`;
+            botones += `<button class="btn btn-secondary btn-sm" data-click="verHistorial" data-args="${i.id_contenedor}">${traducir("Historial")}</button>`;
         }
 
         // Donde esta exactamente y quien la reporto (si fue un vecino)
@@ -405,9 +412,9 @@ function mostrarTablaRepuestos(lista, conAcciones) {
             <td>${limpiarTexto(r.residuo ?? "-")}</td>
             <td class="ajustar">${limpiarTexto(r.instalacion ?? "Sin asignar")}</td>
             <td class="stock">
-                <button class="btn btn-secondary btn-sm" onclick="usarRepuesto(${r.id}, -1)" title="Usar uno">−</button>
+                <button class="btn btn-secondary btn-sm" data-click="usarRepuesto" data-args="${r.id},-1" title="Usar uno">−</button>
                 ${etiqueta}
-                <button class="btn btn-secondary btn-sm" onclick="usarRepuesto(${r.id}, 1)" title="Agregar uno">+</button>
+                <button class="btn btn-secondary btn-sm" data-click="usarRepuesto" data-args="${r.id},1" title="Agregar uno">+</button>
             </td>
             <td>${r.cantidad_minima}</td>`;
         if (conAcciones) {

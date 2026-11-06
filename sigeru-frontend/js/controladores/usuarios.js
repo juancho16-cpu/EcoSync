@@ -50,7 +50,7 @@ function mostrarSolicitudes() {
     if (pendientes == 1) {
         texto = "Hay 1 vecino esperando que apruebes su registro.";
     }
-    aviso.innerHTML = `${texto} <button class="btn btn-secondary btn-sm" onclick="verPendientes()">Ver solicitudes</button>`;
+    aviso.innerHTML = `${texto} <button class="btn btn-secondary btn-sm" data-click="verPendientes">Ver solicitudes</button>`;
     aviso.style.display = "block";
 }
 

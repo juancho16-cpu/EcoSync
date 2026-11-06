@@ -59,13 +59,13 @@ function textoContenedor(c, botones) {
     }
     if (botones == "personal") {
         texto += `<div class="popup-botones">
-            <button class="btn btn-primary btn-sm" onclick="marcarVaciado(${c.id})">${icono("check")}Vaciado</button>
-            <button class="btn btn-danger btn-sm" onclick="irAReportar(${c.id})">${icono("incidencias")}Reportar incidencia</button>
+            <button class="btn btn-primary btn-sm" data-click="marcarVaciado" data-args="${c.id}">${icono("check")}Vaciado</button>
+            <button class="btn btn-danger btn-sm" data-click="irAReportar" data-args="${c.id}">${icono("incidencias")}Reportar incidencia</button>
         </div>`;
     }
     if (botones == "vecino") {
         texto += `<div class="popup-botones">
-            <button class="btn btn-danger btn-sm" onclick="irAReportar(${c.id})">${icono("incidencias")}Reportar incidencia</button>
+            <button class="btn btn-danger btn-sm" data-click="irAReportar" data-args="${c.id}">${icono("incidencias")}Reportar incidencia</button>
         </div>`;
     }
     return texto;

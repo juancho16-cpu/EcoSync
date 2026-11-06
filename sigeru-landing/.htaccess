@@ -11,4 +11,7 @@ Options -Indexes
     Header always set Referrer-Policy "same-origin"
     # El sistema no usa camara ni microfono
     Header always set Permissions-Policy "camera=(), microphone=()"
+    # Politica de contenido (CSP): el navegador solo ejecuta los .js de la landing.
+    # Afuera solo se permite la letra de Google Fonts. El video de fondo es un archivo propio.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 </IfModule>

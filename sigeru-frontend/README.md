@@ -117,11 +117,30 @@ y la línea del recorrido se dibuja punteada.
   las barras de los gráficos crecen y los números del inicio cuentan desde 0. Si la computadora tiene activado
   "reducir movimiento", se sacan.
 
+- En el celular la tabla de Usuarios se ve como tarjetas, con los botones de Aprobar y Rechazar
+  grandes, para poder aceptar registros desde el teléfono.
+
 ### Límites de los municipios
 
 Para que las zonas críticas pinten los límites reales de cada municipio, hay que guardar el archivo
 de límites de la Intendencia de Montevideo en `js/datos/municipios.json` (formato GeoJSON).
 Si el archivo no está, el mapa funciona igual y marca cada municipio con un círculo en su centro.
+
+## Botones sin onclick (política CSP)
+
+Los botones no tienen `onclick` en el HTML. En su lugar dicen qué función llamar con atributos `data-`,
+y `js/vistas/eventos.js` escucha los clics de toda la página y llama a esa función:
+
+```html
+<button data-click="nuevoUsuario">Nuevo usuario</button>                 <!-- nuevoUsuario() -->
+<button data-click="aprobarElegido" data-args="5,true">Aprobar</button>  <!-- aprobarElegido(5, true) -->
+<select data-change="cargarIncidencias">...</select>                     <!-- al cambiar -->
+<input data-input="buscar">                                               <!-- al escribir -->
+```
+
+Así se pudo agregar la cabecera `Content-Security-Policy` en `.htaccess`: el navegador solo ejecuta
+los `.js` del sistema, y si alguien logra meter un `<script>` o un `onclick` en una página no se ejecuta.
+Desde afuera solo se permite la letra de Google Fonts, el mapa de OpenStreetMap y las rutas de OSRM.
 
 ## Estructura (MVC)
 
@@ -143,7 +162,7 @@ css/styles.css
 js/config.js                    Direcciones de las APIs
 js/idioma.js                    Traducciones (idioma parametrizable)
 js/modelos/                     Pedidos a las APIs (servidor, usuarios, gestion, recoleccion)
-js/vistas/                      Funciones que muestran datos en pantalla (comun, tablas, mapa, panel, notificaciones)
+js/vistas/                      Funciones que muestran datos en pantalla (comun, tablas, mapa, panel, notificaciones, eventos)
 js/libs/leaflet/                Libreria del mapa (Leaflet 1.9.4)
 js/datos/                       Límites de los municipios (municipios.json, opcional)
 js/controladores/               Lógica de cada página

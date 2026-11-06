@@ -14,13 +14,13 @@
     <aside class="sidebar">
         <div class="logo-fila">
             <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
-            <button class="campana" onclick="abrirNotificaciones()" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
         </div>
         <!-- Lista de notificaciones (se abre al tocar la campana) -->
         <div id="panelNotificaciones" class="panel-notificaciones">
             <div class="panel-notificaciones-titulo">
                 <strong>Notificaciones</strong>
-                <button class="btn btn-secondary btn-sm" onclick="leerTodos()">Marcar todas como leídas</button>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
             </div>
             <div id="listaMensajes"></div>
         </div>
@@ -46,7 +46,7 @@
                 <strong id="nombreUsuario"></strong>
                 <span id="rolUsuario"></span>
             </div>
-            <button class="boton-salir" onclick="salir()" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
         </div>
     </aside>
 
@@ -60,8 +60,8 @@
                 </div>
             </div>
             <div class="botones-mapa">
-                <button class="btn btn-secondary" onclick="buscarMiUbicacion()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#ubicacion"></use></svg>Estoy acá</button>
-                <button id="botonAgregar" class="btn btn-primary solo-gestion" onclick="activarModoAgregar()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg><span>Agregar contenedor</span></button>
+                <button class="btn btn-secondary" data-click="buscarMiUbicacion"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#ubicacion"></use></svg>Estoy acá</button>
+                <button id="botonAgregar" class="btn btn-primary solo-gestion" data-click="activarModoAgregar"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg><span>Agregar contenedor</span></button>
             </div>
         </div>
 
@@ -69,16 +69,16 @@
 
         <div class="mapa-barra">
             <div class="filtros">
-                <select id="filtroEstado" onchange="dibujarTodo()">
+                <select id="filtroEstado" data-change="dibujarTodo">
                     <option value="">Todos los estados</option>
                     <option>Funcional</option>
                     <option>Roto</option>
                     <option>Desbordado</option>
                 </select>
-                <select id="filtroResiduo" onchange="dibujarTodo()">
+                <select id="filtroResiduo" data-change="dibujarTodo">
                     <option value="">Todos los residuos</option>
                 </select>
-                <select id="filtroMunicipio" onchange="cambiarMunicipio()">
+                <select id="filtroMunicipio" data-change="cambiarMunicipio">
                     <option value="">Todos los municipios</option>
                     <option value="A">Municipio A</option>
                     <option value="B">Municipio B</option>
@@ -91,12 +91,12 @@
                 </select>
             </div>
             <div class="capas">
-                <label><input type="checkbox" id="verContenedores" checked onchange="dibujarTodo()"> Contenedores</label>
-                <label class="no-vecino"><input type="checkbox" id="verIncidencias" checked onchange="dibujarTodo()"> Incidencias</label>
-                <label class="no-vecino"><input type="checkbox" id="verInstalaciones" checked onchange="dibujarTodo()"> Centros y vertederos</label>
-                <label class="no-vecino"><input type="checkbox" id="verCamiones" checked onchange="dibujarTodo()"> Camiones</label>
-                <label class="no-vecino"><input type="checkbox" id="verRecorridos" onchange="dibujarTodo()"> Recorridos</label>
-                <label class="no-vecino"><input type="checkbox" id="verZonasCriticas" onchange="dibujarTodo()"> Zonas con más problemas</label>
+                <label><input type="checkbox" id="verContenedores" checked data-change="dibujarTodo"> Contenedores</label>
+                <label class="no-vecino"><input type="checkbox" id="verIncidencias" checked data-change="dibujarTodo"> Incidencias</label>
+                <label class="no-vecino"><input type="checkbox" id="verInstalaciones" checked data-change="dibujarTodo"> Centros y vertederos</label>
+                <label class="no-vecino"><input type="checkbox" id="verCamiones" checked data-change="dibujarTodo"> Camiones</label>
+                <label class="no-vecino"><input type="checkbox" id="verRecorridos" data-change="dibujarTodo"> Recorridos</label>
+                <label class="no-vecino"><input type="checkbox" id="verZonasCriticas" data-change="dibujarTodo"> Zonas con más problemas</label>
             </div>
         </div>
 
@@ -195,7 +195,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
             </form>
         </dialog>
     </main>
@@ -208,6 +208,7 @@
 <script src="js/modelos/gestion.js"></script>
 <script src="js/modelos/recoleccion.js"></script>
 <script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
 <script src="js/vistas/tablas.js"></script>
 <script src="js/vistas/notificaciones.js"></script>
 <script src="js/libs/leaflet/leaflet.js"></script>

@@ -13,13 +13,13 @@
     <aside class="sidebar">
         <div class="logo-fila">
             <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
-            <button class="campana" onclick="abrirNotificaciones()" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
         </div>
         <!-- Lista de notificaciones (se abre al tocar la campana) -->
         <div id="panelNotificaciones" class="panel-notificaciones">
             <div class="panel-notificaciones-titulo">
                 <strong>Notificaciones</strong>
-                <button class="btn btn-secondary btn-sm" onclick="leerTodos()">Marcar todas como leídas</button>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
             </div>
             <div id="listaMensajes"></div>
         </div>
@@ -45,7 +45,7 @@
                 <strong id="nombreUsuario"></strong>
                 <span id="rolUsuario"></span>
             </div>
-            <button class="boton-salir" onclick="salir()" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
         </div>
     </aside>
 
@@ -58,7 +58,7 @@
                     <p class="subtitulo">Los camiones que salen a juntar la basura. Se ve si están funcionando, si están en la calle haciendo un recorrido o si están en el taller, y se anota cada arreglo o service que se les hace.</p>
                 </div>
             </div>
-            <button class="btn btn-primary solo-gestion" onclick="nuevoCamion()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nuevo camión</button>
+            <button class="btn btn-primary solo-gestion" data-click="nuevoCamion"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nuevo camión</button>
         </div>
 
         <div id="mensaje" class="mensaje"></div>
@@ -96,11 +96,11 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
             </form>
         </dialog>
 
-        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por matrícula o estado..." oninput="buscar()"></div>
+        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por matrícula o estado..." data-input="buscar"></div>
 
         <div class="table-container">
             <table>
@@ -164,7 +164,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Agregar</button>
             </form>
-            <button type="button" class="btn btn-secondary boton-cerrar" onclick="cerrarMantenimientos()">Cerrar</button>
+            <button type="button" class="btn btn-secondary boton-cerrar" data-click="cerrarMantenimientos">Cerrar</button>
         </dialog>
     </main>
 </div>
@@ -176,6 +176,7 @@
 <script src="js/modelos/gestion.js"></script>
 <script src="js/modelos/recoleccion.js"></script>
 <script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
 <script src="js/vistas/tablas.js"></script>
 <script src="js/vistas/notificaciones.js"></script>
 <script src="js/controladores/sesion.js"></script>

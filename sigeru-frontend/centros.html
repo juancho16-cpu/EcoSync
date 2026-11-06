@@ -13,13 +13,13 @@
     <aside class="sidebar">
         <div class="logo-fila">
             <a class="logo" href="panel.html"><svg class="logo-icono" aria-hidden="true"><use href="img/iconos.svg#hoja"></use></svg>SiGeRU</a>
-            <button class="campana" onclick="abrirNotificaciones()" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
+            <button class="campana" data-click="abrirNotificaciones" title="Notificaciones"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#campana"></use></svg><span id="contadorMensajes" class="contador"></span></button>
         </div>
         <!-- Lista de notificaciones (se abre al tocar la campana) -->
         <div id="panelNotificaciones" class="panel-notificaciones">
             <div class="panel-notificaciones-titulo">
                 <strong>Notificaciones</strong>
-                <button class="btn btn-secondary btn-sm" onclick="leerTodos()">Marcar todas como leídas</button>
+                <button class="btn btn-secondary btn-sm" data-click="leerTodos">Marcar todas como leídas</button>
             </div>
             <div id="listaMensajes"></div>
         </div>
@@ -45,7 +45,7 @@
                 <strong id="nombreUsuario"></strong>
                 <span id="rolUsuario"></span>
             </div>
-            <button class="boton-salir" onclick="salir()" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
+            <button class="boton-salir" data-click="salir" title="Cerrar sesión"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#salir"></use></svg></button>
         </div>
     </aside>
 
@@ -58,7 +58,7 @@
                     <p class="subtitulo">Los lugares a donde se lleva lo que se junta antes de ir al vertedero: cuánto tienen guardado, cuánto les entra, quién está a cargo y qué residuos aceptan.</p>
                 </div>
             </div>
-            <button class="btn btn-primary solo-gestion" onclick="nuevoCentro()"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nuevo centro</button>
+            <button class="btn btn-primary solo-gestion" data-click="nuevoCentro"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#mas"></use></svg>Nuevo centro</button>
         </div>
 
         <div id="mensaje" class="mensaje"></div>
@@ -102,11 +102,11 @@
                     <div id="casillasResiduos" class="casillas"></div>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-click="cerrarModal">Cancelar</button>
             </form>
         </dialog>
 
-        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por nombre, calle o zona..." oninput="buscar()"></div>
+        <div class="buscador-caja"><svg class="icono" aria-hidden="true"><use href="img/iconos.svg#buscar"></use></svg><input id="buscador" class="buscador" placeholder="Buscar por nombre, calle o zona..." data-input="buscar"></div>
 
         <div class="table-container">
             <table>
@@ -134,6 +134,7 @@
 <script src="js/modelos/gestion.js"></script>
 <script src="js/modelos/recoleccion.js"></script>
 <script src="js/vistas/comun.js"></script>
+<script src="js/vistas/eventos.js"></script>
 <script src="js/vistas/tablas.js"></script>
 <script src="js/vistas/notificaciones.js"></script>
 <script src="js/controladores/sesion.js"></script>
