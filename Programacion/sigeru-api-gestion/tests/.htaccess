@@ -1,0 +1,2 @@
+# Los tests se corren desde la consola (php tests/test_api.php), nunca desde el navegador
+Require all denied

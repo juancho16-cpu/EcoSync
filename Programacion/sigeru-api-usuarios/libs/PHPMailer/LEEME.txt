@@ -1,0 +1,6 @@
+PHPMailer 6.12.0 (https://github.com/PHPMailer/PHPMailer)
+Actualizada el 06/11/2026 desde la 6.9.1 (recomendacion del informe OWASP, A06).
+Se revisan las versiones nuevas cada 3 meses.
+Libreria para mandar correos por SMTP (la usamos con Gmail).
+Se copiaron solo los 3 archivos que hacen falta: PHPMailer.php, SMTP.php y Exception.php.
+Licencia: LGPL 2.1 (archivo LICENSE).

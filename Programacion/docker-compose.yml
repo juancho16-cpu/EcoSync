@@ -1,0 +1,79 @@
+# SiGeRU con Docker
+# Levantar todo:  docker compose up -d --build
+# Apagar todo:    docker compose down
+#
+# Despues de levantarlo:
+#   Sistema:     http://localhost:8080
+#   phpMyAdmin:  http://localhost:8081  (usuario root, sin contraseña)
+
+services:
+
+  # Base de datos MySQL 8
+  mysql:
+    image: mysql:8.0
+    container_name: sigeru-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: America/Montevideo
+    volumes:
+      # Los archivos de esta carpeta se ejecutan solos la primera vez que se levanta:
+      # crean la base de datos y cargan los datos de prueba
+      - ./sigeru-base-datos/ddl/sigeru_ddl.sql:/docker-entrypoint-initdb.d/1_ddl.sql
+      - ./sigeru-base-datos/datos/sigeru_datos_prueba.sql:/docker-entrypoint-initdb.d/2_datos.sql
+      # Aca se guardan los datos para que no se pierdan al apagar el contenedor
+      - datos-mysql:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    # El servidor web espera a que MySQL este listo y con los datos de prueba cargados
+    # (se fija que ya este la ultima tabla que se llena: recolecciones)
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -uroot -h 127.0.0.1 -e 'SELECT id_recoleccion FROM sigeru.recolecciones LIMIT 1' | grep -q id"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # Servidor web: Apache con PHP 8 con las aplicaciones de SiGeRU
+  web:
+    build: ./docker
+    container_name: sigeru-web
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # Las APIs se conectan a la base de datos del contenedor "mysql" (ver conexion.php)
+      DB_HOST: mysql
+      TZ: America/Montevideo
+      # Correo de Gmail para los mails de verificacion (ver sigeru-api-usuarios/config_correo.php).
+      # Si se dejan vacios no se mandan correos y los vecinos no se pueden registrar.
+      GMAIL_USUARIO: ""
+      GMAIL_CLAVE: ""
+      DIRECCION_SITIO: "http://localhost:8080"
+      # Donde se guarda la clave de cifrado de los telefonos (se crea sola la primera vez)
+      SIGERU_CLAVE_ARCHIVO: /var/www/claves/sigeru_clave.php
+    volumes:
+      - ./sigeru-landing:/var/www/html/sigeru-landing
+      - ./sigeru-frontend:/var/www/html/sigeru-frontend
+      - ./sigeru-api-usuarios:/var/www/html/sigeru-api-usuarios
+      - ./sigeru-api-gestion:/var/www/html/sigeru-api-gestion
+      - ./sigeru-api-recoleccion:/var/www/html/sigeru-api-recoleccion
+      # Los tests de los modelos usan los archivos de la base de datos
+      - ./sigeru-base-datos:/var/www/html/sigeru-base-datos
+      - ./docker/index.html:/var/www/html/index.html
+      - claves:/var/www/claves
+    ports:
+      - "8080:80"
+
+  # phpMyAdmin, para ver la base de datos desde el navegador
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: sigeru-phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "8081:80"
+
+volumes:
+  datos-mysql:
+  claves:
