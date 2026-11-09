@@ -1,2 +1,0 @@
-Guardar aca el archivo municipios.json (limites de los municipios de Montevideo en formato GeoJSON).
-Si no esta, el mapa funciona igual.
