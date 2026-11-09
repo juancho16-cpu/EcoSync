@@ -1,8 +1,5 @@
 <?php
-// Controlador de usuarios: valida los datos y usa el modelo Usuario
 
-// Revisa que los datos del formulario esten bien. Si hay un error lo devuelve y corta.
-// $id es el usuario que se esta modificando (null si es un usuario nuevo).
 function validarUsuario($usuario, $datos, $id) {
     $rolesValidos = ["Administrador", "Operario", "Recolector", "Vecino"];
 
@@ -15,12 +12,11 @@ function validarUsuario($usuario, $datos, $id) {
         responder(["error" => "El formato del correo no es válido"], 400);
     }
 
-    // Al crear un usuario la contraseña es obligatoria. Al modificar, solo si escribieron una nueva.
     $contrasena = $datos['contrasena'] ?? "";
     if ($id == null && $contrasena == "") {
         responder(["error" => "La contraseña es obligatoria"], 400);
     }
-    // Politica de contraseñas: al menos 8 caracteres, con letras y numeros
+    
     if ($contrasena != "") {
         $error = revisarContrasena($contrasena);
         if ($error != "") {
@@ -32,15 +28,12 @@ function validarUsuario($usuario, $datos, $id) {
         responder(["error" => "El rol no es válido"], 400);
     }
 
-    // El correo no puede ser de otro usuario
     $otro = $usuario->buscarPorEmail($datos['email']);
     if ($otro != null && $otro['id_usuario'] != $id) {
         responder(["error" => "Ese correo ya está registrado"], 409);
     }
 }
 
-// Revisa que una contraseña cumpla la politica de contraseñas.
-// Devuelve el error, o "" si esta bien.
 function revisarContrasena($contrasena) {
     if (strlen($contrasena) < 8) {
         return "La contraseña tiene que tener al menos 8 caracteres";
@@ -54,7 +47,6 @@ function revisarContrasena($contrasena) {
     return "";
 }
 
-// Guarda un evento en la auditoria. Si hay alguien con la sesion iniciada, queda a su nombre.
 function auditar($accion, $detalle, $email = null) {
     global $auditoria;
     $idUsuario = null;
@@ -64,12 +56,10 @@ function auditar($accion, $detalle, $email = null) {
     $auditoria->registrar($idUsuario, $email, $accion, $detalle);
 }
 
-// Devuelve la lista de todos los usuarios (GET usuarios)
 function listarUsuarios($usuario) {
     responder($usuario->obtenerTodos());
 }
 
-// Busca un usuario por su numero de id (GET usuarios?id=1)
 function obtenerUsuario($usuario, $id) {
     $encontrado = $usuario->obtenerPorId($id);
 
@@ -79,20 +69,16 @@ function obtenerUsuario($usuario, $id) {
     responder($encontrado);
 }
 
-// Registro desde la landing: las personas que se registran solas son vecinos (POST registro)
-// El vecino queda "Sin verificar" y se le manda un correo con un enlace para verificar su cuenta.
 function registrarUsuario($usuario, $datos) {
     global $direccionSitio;
 
     $datos['rol'] = "Vecino";
     validarUsuario($usuario, $datos, null);
 
-    // Si el sistema no tiene configurado el Gmail, no se puede mandar el correo de verificacion
     if (!correoConfigurado()) {
         responder(["error" => "El registro no está disponible: falta configurar el correo de SiGeRU (archivo sigeru_correo.php). Avisale al administrador."], 503);
     }
 
-    // Codigo al azar que va en el enlace del correo (32 letras y numeros)
     $codigo = bin2hex(random_bytes(16));
     $nuevo = $usuario->agregar($datos, "Sin verificar", $codigo);
 
@@ -103,7 +89,6 @@ function registrarUsuario($usuario, $datos) {
               "<p style='color: #6b7280; font-size: 13px'>Si no te registraste, ignora este mensaje.</p>";
     $seMando = enviarCorreo($nuevo['email'], $nuevo['primer_nombre'], "Verificá tu correo", $texto);
 
-    // Si no se pudo mandar el correo, no puede verificar la cuenta: borramos el registro para que lo intente de nuevo
     if (!$seMando) {
         $usuario->eliminar($nuevo['id']);
         responder(["error" => "No pudimos mandarte el correo de verificación: Gmail no aceptó el envío. Intentalo más tarde (si sigue pasando, avisale al administrador)."], 500);
@@ -116,8 +101,6 @@ function registrarUsuario($usuario, $datos) {
     ], 201);
 }
 
-// El vecino abre el enlace del correo (GET verificar?codigo=...)
-// Si hay que aprobar los registros queda "Pendiente" y se avisa a los administradores; si no, queda "Activo".
 function verificarCorreo($usuario, $parametro, $mensaje, $codigo) {
     global $direccionSitio;
 
@@ -153,7 +136,6 @@ function verificarCorreo($usuario, $parametro, $mensaje, $codigo) {
     responder(["mensaje" => "¡Te registraste correctamente! Ya podés iniciar sesión.", "estado" => "Activo"]);
 }
 
-// El administrador aprueba o rechaza el registro de un vecino (POST aprobar?id=5 con {"aprobado": true})
 function aprobarRegistro($usuario, $mensaje, $id, $datos) {
     global $direccionSitio;
 
@@ -187,7 +169,6 @@ function aprobarRegistro($usuario, $mensaje, $id, $datos) {
     responder(["mensaje" => "Registro de " . $encontrado['primer_nombre'] . " rechazado."]);
 }
 
-// Crea un usuario desde el formulario del frontend, con cualquier rol (POST usuarios)
 function crearUsuario($usuario, $datos) {
     validarUsuario($usuario, $datos, null);
 
@@ -196,7 +177,6 @@ function crearUsuario($usuario, $datos) {
     responder(["mensaje" => "Usuario creado correctamente", "usuario" => $nuevo], 201);
 }
 
-// Modifica un usuario (PUT usuarios?id=1)
 function modificarUsuario($usuario, $id, $datos) {
     $anterior = $usuario->obtenerPorId($id);
     if ($anterior == null) {
@@ -204,7 +184,6 @@ function modificarUsuario($usuario, $id, $datos) {
     }
     validarUsuario($usuario, $datos, $id);
 
-    // Un administrador no se puede sacar su propio rol (si no, podria quedar el sistema sin administrador)
     if ($id == $_SESSION['usuario_logueado']['id'] && $datos['rol'] != $anterior['rol']) {
         responder(["error" => "No podés cambiarte tu propio rol"], 400);
     }
@@ -221,12 +200,11 @@ function modificarUsuario($usuario, $id, $datos) {
     responder(["mensaje" => "Usuario modificado correctamente", "usuario" => $modificado]);
 }
 
-// Borra un usuario (DELETE usuarios?id=1)
 function eliminarUsuario($usuario, $id) {
     if ($usuario->obtenerPorId($id) == null) {
         responder(["error" => "Usuario no encontrado"], 404);
     }
-    // Un administrador no se puede borrar a si mismo
+    
     if ($id == $_SESSION['usuario_logueado']['id']) {
         responder(["error" => "No podés borrar tu propio usuario"], 400);
     }
@@ -237,7 +215,6 @@ function eliminarUsuario($usuario, $id) {
     responder(["mensaje" => "Usuario eliminado correctamente"]);
 }
 
-// Inicia la sesion si el correo y la contraseña son correctos (POST login)
 function iniciarSesion($usuario, $parametro, $datos) {
     global $auditoria;
     $email = trim($datos['email'] ?? "");
@@ -250,7 +227,6 @@ function iniciarSesion($usuario, $parametro, $datos) {
         responder(["error" => "Correo o contraseña incorrectos"], 401);
     }
 
-    // Proteccion contra fuerza bruta: despues de varios intentos fallidos el correo queda bloqueado un rato
     $maximo = (int) $parametro->obtener("intentos_login", 5);
     $minutosBloqueo = (int) $parametro->obtener("minutos_bloqueo", 15);
     if ($maximo > 0 && $auditoria->contarIntentosFallidos($email, $minutosBloqueo) >= $maximo) {
@@ -260,13 +236,11 @@ function iniciarSesion($usuario, $parametro, $datos) {
 
     $encontrado = $usuario->buscarPorEmail($email);
 
-    // password_verify compara la contraseña escrita con la encriptada
     if ($encontrado == null || !password_verify($contrasena, $encontrado['contrasena'])) {
         auditar("Login fallido", "Correo o contraseña incorrectos", $email);
         responder(["error" => "Correo o contraseña incorrectos"], 401);
     }
 
-    // Solo pueden entrar los usuarios activos
     if ($encontrado['estado'] == "Sin verificar") {
         responder(["error" => "Todavía no verificaste tu correo. Revisá tu bandeja de entrada (y la carpeta de spam)."], 403);
     }
@@ -277,12 +251,10 @@ function iniciarSesion($usuario, $parametro, $datos) {
         responder(["error" => "Tu registro no fue aprobado."], 403);
     }
 
-    // Cambiamos el numero de la sesion al entrar (evita que alguien use un numero de sesion viejo)
     session_regenerate_id(true);
     unset($_SESSION['sesion_vencida']);
     $_SESSION['ultimo_uso'] = time();
 
-    // Guardamos en la sesion quien inicio sesion
     $_SESSION['usuario_logueado'] = [
         "id" => $encontrado['id_usuario'],
         "nombre" => $encontrado['primer_nombre'] . " " . $encontrado['primer_apellido'],
@@ -292,7 +264,6 @@ function iniciarSesion($usuario, $parametro, $datos) {
     responder(["mensaje" => "Bienvenido", "usuario" => $_SESSION['usuario_logueado']]);
 }
 
-// Cierra la sesion (POST logout)
 function cerrarSesion() {
     if (isset($_SESSION['usuario_logueado'])) {
         auditar("Cierre de sesión", "Salió del sistema");
@@ -302,7 +273,6 @@ function cerrarSesion() {
     responder(["mensaje" => "Sesión cerrada"]);
 }
 
-// Devuelve quien inicio sesion (GET sesion)
 function sesionActual() {
     if (!isset($_SESSION['usuario_logueado'])) {
         responder(["error" => "No hay ninguna sesión iniciada"], 401);
@@ -310,7 +280,6 @@ function sesionActual() {
     responder(["usuario" => $_SESSION['usuario_logueado']]);
 }
 
-// Lista de la auditoria para el administrador (GET auditoria, opcional ?accion=Login fallido)
 function listarAuditoria($auditoria) {
     $accion = $_GET['accion'] ?? "";
     responder($auditoria->obtenerUltimos(300, $accion));

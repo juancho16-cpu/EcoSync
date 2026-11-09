@@ -1,4 +1,3 @@
-// Controlador de la pagina de inicio del panel
 
 async function iniciar() {
     const haySesion = await revisarSesion();
@@ -7,7 +6,6 @@ async function iniciar() {
     document.getElementById("saludo").textContent = usuarioLogueado.nombre;
     document.getElementById("fechaHoy").textContent = fechaLarga();
 
-    // Totales que se muestran en las tarjetas
     try {
         const contenedores = await obtenerContenedores();
         contarHasta("totalContenedores", contenedores.length);
@@ -34,7 +32,6 @@ async function iniciar() {
         mostrarMensaje(error.message, true);
     }
 
-    // Las estadisticas son para el personal (el vecino no las ve)
     if (usuarioLogueado.rol != "Vecino") {
         document.getElementById("mesEstadisticas").value = mesActual();
         await cargarEstadisticas();

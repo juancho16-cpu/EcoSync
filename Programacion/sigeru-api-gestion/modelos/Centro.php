@@ -1,13 +1,9 @@
 <?php
-// Modelo Centro: centros de acopio.
-// Un centro de acopio es una instalacion, por eso sus datos estan en la tabla instalaciones
-// y su id tambien esta en la tabla centros_acopio (ver el MER).
 
 class Centro
 {
     private $conn;
 
-    // Consulta que trae los centros con el nombre del operario asignado
     private $consulta = "SELECT i.id_instalacion AS id, i.nombre, i.calle, i.zona, i.capacidad_actual,
                                 i.capacidad_max, i.id_operario,
                                 CONCAT(u.primer_nombre, ' ', u.primer_apellido) AS operario
@@ -45,7 +41,6 @@ class Centro
         return $centro;
     }
 
-    // Tipos de residuo que recibe el centro (RNE05)
     public function obtenerResiduos($id)
     {
         $stmt = $this->conn->prepare("SELECT t.id_residuo, t.nombre FROM centro_residuo cr
@@ -62,7 +57,6 @@ class Centro
         return $residuos;
     }
 
-    // Lista de operarios, para elegir quien esta a cargo del centro
     public function obtenerOperarios()
     {
         $result = mysqli_query($this->conn, "SELECT o.id_usuario AS id, CONCAT(u.primer_nombre, ' ', u.primer_apellido) AS nombre
@@ -75,7 +69,6 @@ class Centro
         return $operarios;
     }
 
-    // Devuelve true si ese usuario es un operario
     public function esOperario($idUsuario)
     {
         $stmt = $this->conn->prepare("SELECT id_usuario FROM operarios WHERE id_usuario = ?");
@@ -92,7 +85,6 @@ class Centro
 
         $id = $this->conn->insert_id;
 
-        // Tambien se guarda en la tabla de centros de acopio
         $stmt = $this->conn->prepare("INSERT INTO centros_acopio (id_instalacion) VALUES (?)");
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -111,7 +103,6 @@ class Centro
         return $this->obtenerPorId($id);
     }
 
-    // Borra el centro (lo de las otras tablas se borra solo por el ON DELETE CASCADE)
     public function eliminar($id)
     {
         $stmt = $this->conn->prepare("DELETE FROM instalaciones WHERE id_instalacion = ?");
@@ -119,7 +110,6 @@ class Centro
         $stmt->execute();
     }
 
-    // Pone los datos del formulario en la consulta. Los campos vacios se guardan como NULL.
     private function cargarDatos($stmt, $datos, $id)
     {
         $nombre = $datos['nombre'];
@@ -140,7 +130,6 @@ class Centro
         }
     }
 
-    // Borra los tipos de residuo que tenia el centro y guarda los nuevos
     private function guardarResiduos($id, $residuos)
     {
         $stmt = $this->conn->prepare("DELETE FROM centro_residuo WHERE id_instalacion = ?");

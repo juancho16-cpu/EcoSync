@@ -1,11 +1,4 @@
 <?php
-// Tests de los endpoints de la API de Usuarios.
-// Le hacen pedidos a la API como si fueran el navegador y revisan las respuestas.
-// Necesitan Apache y MySQL prendidos, con la base de datos y los datos de prueba importados.
-// Lo que crean lo borran al final.
-//
-// Se corren con: php tests/test_api.php
-// Si la API esta en otra direccion: php tests/test_api.php http://localhost:8080/sigeru-api-usuarios/api.php
 
 require_once __DIR__ . "/funciones_test.php";
 
@@ -15,7 +8,6 @@ if (isset($argv[1])) {
 }
 echo "Probando la API en $api\n";
 
-// Correo distinto cada vez, para que no choque con otros usuarios
 $correoPrueba = "prueba" . time() . "@mail.com";
 
 titulo("Inicio de sesion");
@@ -61,15 +53,12 @@ $r = pedir("POST", $api . "/registro", [
     "rol" => "Administrador"
 ], "landing");
 
-// Si Gmail esta configurado se manda el correo de verificacion de verdad (a un correo que no existe).
-// Si no esta configurado, la API avisa que falta configurar el correo (503) y no crea el usuario.
 if ($r['codigo'] == 503 || $r['codigo'] == 500) {
     echo "  (Gmail no está configurado: se prueba que no quede el registro y se crea el vecino directo en la base)\n";
     verificar(str_contains($r['json']['error'], "correo"), "Si no se puede mandar el correo avisa el error");
     $quedo = mysqli_fetch_assoc(mysqli_query($base, "SELECT COUNT(*) AS cantidad FROM usuarios WHERE email = '" . $correoRegistro . "'"))['cantidad'];
     verificar($quedo == 0, "Y no deja creado el usuario, para que se pueda registrar de nuevo");
 
-    // Creamos el vecino como si se hubiera mandado el correo
     $clave = password_hash("clave1234", PASSWORD_DEFAULT);
     mysqli_query($base, "INSERT INTO usuarios (primer_nombre, primer_apellido, email, contrasena, rol, estado, codigo_verificacion)
                          VALUES ('Prueba', 'Registro', '" . $correoRegistro . "', '" . $clave . "', 'Vecino', 'Sin verificar', SHA2('codigo-del-test', 256))");
@@ -82,10 +71,9 @@ if ($r['codigo'] == 503 || $r['codigo'] == 500) {
     $idRegistrado = $r['json']['usuario']['id'];
 }
 
-// En la base solo esta el resumen SHA-256 del codigo del enlace (el correo no lo podemos leer desde el test).
 $enLaBase = mysqli_fetch_assoc(mysqli_query($base, "SELECT codigo_verificacion FROM usuarios WHERE id_usuario = " . $idRegistrado))['codigo_verificacion'];
 verificar(strlen($enLaBase) == 64, "En la base el código del enlace está guardado como resumen SHA-256");
-// Ponemos el resumen de un codigo que conocemos, como si fuera el del correo
+
 $codigo = "codigo-conocido-" . time();
 mysqli_query($base, "UPDATE usuarios SET codigo_verificacion = '" . hash("sha256", $codigo) . "' WHERE id_usuario = " . $idRegistrado);
 
@@ -161,7 +149,6 @@ verificar($r['codigo'] == 400, "Un parámetro que no existe devuelve 400");
 $r = pedir("PUT", $api . "/parametros", ["dias_alerta_desborde" => "3", "idioma" => "en"], "admin");
 verificar($r['codigo'] == 200, "El administrador cambia dos parámetros juntos");
 
-// Los dejamos como estaban
 pedir("PUT", $api . "/parametros", ["dias_alerta_desborde" => "2", "idioma" => "es"], "admin");
 
 titulo("CRUD de usuarios (administrador)");
@@ -207,7 +194,6 @@ verificar($r['codigo'] == 200, "Borra el usuario de prueba");
 $r = pedir("GET", $api . "/usuarios?id=" . $idNuevo, null, "admin");
 verificar($r['codigo'] == 404, "El usuario borrado ya no existe (404)");
 
-// Borramos tambien el que se registro desde la landing
 titulo("Cambiar el rol");
 
 $r = pedir("PUT", $api . "/usuarios?id=1", ["primer_nombre" => "Usuario", "primer_apellido" => "Administrador", "email" => "admin@sigeru.uy", "rol" => "Operario"], "admin");
@@ -224,7 +210,6 @@ verificar($r['codigo'] == 200, "Borra el usuario que se registró en la prueba")
 
 titulo("Seguridad: bloqueo por intentos fallidos y auditoría");
 
-// Un correo de prueba que se equivoca de contraseña muchas veces
 $correoAtacado = "atacado" . $correoPrueba;
 for ($i = 1; $i <= 5; $i++) {
     $r = entrar($api, "atacante", $correoAtacado, "mala" . $i);
@@ -255,13 +240,11 @@ verificar($r['json'][0]['usuario'] == "Usuario Administrador", "A nombre del adm
 $r = pedir("GET", $api . "/auditoria?accion=" . urlencode("Login bloqueado"), null, "admin");
 verificar(count($r['json']) >= 1, "El intento bloqueado también queda anotado");
 
-// Desde el navegador solo se puede usar api.php: los demas archivos devuelven 403
 $r = pedir("GET", str_replace("/api.php", "/conexion.php", $api), null, "landing");
 verificar($r['codigo'] == 403, "No se puede abrir conexion.php desde el navegador (403)");
 $r = pedir("GET", str_replace("/api.php", "/tests/test_api.php", $api), null, "landing");
 verificar($r['codigo'] == 403, "No se pueden correr los tests desde el navegador (403)");
 
-// Borramos lo que dejaron estas pruebas
 mysqli_query($base, "DELETE FROM auditoria WHERE email = '" . $correoAtacado . "'");
 
 titulo("Cerrar sesion");
@@ -272,7 +255,6 @@ verificar($r['codigo'] == 200, "Cierra la sesión");
 $r = pedir("GET", $api . "/usuarios", null, "admin");
 verificar($r['codigo'] == 401, "Después de cerrar sesión ya no puede ver los usuarios");
 
-// Borramos las notificaciones que crearon los tests
 mysqli_query($base, "DELETE FROM mensajes WHERE texto LIKE '%Prueba Registro%'");
 
 $r = pedir("GET", $api . "/no-existe", null, "admin");

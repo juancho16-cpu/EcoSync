@@ -1,7 +1,5 @@
 <?php
-// Configuracion general de la API de Usuarios
 
-// La cookie de la sesion: JavaScript no la puede leer (httponly) y no se manda desde otras paginas (samesite)
 session_set_cookie_params([
     "lifetime" => 0,
     "path" => "/",
@@ -10,12 +8,9 @@ session_set_cookie_params([
     "secure" => (($_SERVER['HTTPS'] ?? "") == "on")
 ]);
 
-// La sesion guarda quien inicio sesion (la comparten todas las APIs)
 session_name("SIGERU");
 session_start();
 
-// Si pasaron 30 minutos sin usar el sistema, se cierra la sesion sola.
-// Las consultas automaticas de la campana (GET mensajes) no cuentan como uso.
 $minutosSesion = 30;
 if (isset($_SESSION['usuario_logueado'])) {
     $ultimoUso = $_SESSION['ultimo_uso'] ?? time();
@@ -30,13 +25,8 @@ if (isset($_SESSION['usuario_logueado'])) {
     }
 }
 
-// La API siempre responde en formato JSON
 header("Content-Type: application/json; charset=utf-8");
 
-// Cabeceras de seguridad:
-// nosniff: el navegador no adivina el tipo de archivo
-// DENY: la API no se puede meter dentro de otra pagina (iframe)
-// no-store: las respuestas con datos personales no se guardan en el cache
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: DENY");
 header("Cache-Control: no-store");

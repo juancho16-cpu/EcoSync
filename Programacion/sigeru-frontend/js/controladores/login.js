@@ -1,6 +1,4 @@
-// Controlador del inicio de sesion
 
-// El enlace de "Crear cuenta" lleva al registro de la landing
 document.getElementById("linkRegistro").href = URL_LANDING + "#registro";
 document.getElementById("linkLanding").href = URL_LANDING;
 document.getElementById("linkLogo").href = URL_LANDING;
@@ -8,7 +6,6 @@ document.getElementById("linkLogo").href = URL_LANDING;
 const formulario = document.getElementById("formLogin");
 
 formulario.addEventListener("submit", async function (evento) {
-    // Evita que la pagina se recargue
     evento.preventDefault();
 
     const email = document.getElementById("email").value.trim();

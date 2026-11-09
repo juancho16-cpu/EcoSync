@@ -1,12 +1,9 @@
 <?php
-// Modelo Incidencia: problemas en los contenedores (roto, desbordado, falta de recoleccion)
 
 class Incidencia
 {
     private $conn;
 
-    // Consulta que trae la incidencia con los datos de su contenedor, del recorrido (cuadrilla) asignado
-    // y del vecino que la reporto (si la reporto un vecino; la relacion esta en la tabla notificaciones)
     private $consulta = "SELECT i.id_incidencia AS id, i.id_contenedor, i.tipo, i.estado, i.prioridad,
                                 i.fecha_deteccion, i.fecha, i.fecha_resolucion, i.descripcion, i.referencia,
                                 i.zona_incidencia, i.id_recorrido, c.calle, c.municipio, c.latitud, c.longitud,
@@ -25,16 +22,13 @@ class Incidencia
         $this->conn = $conn;
     }
 
-    // Lista de incidencias, de la mas nueva a la mas vieja.
-    // Se puede filtrar por estado, por contenedor, por fecha de deteccion (desde / hasta)
-    // y por el vecino que las reporto. Si un filtro viene vacio no se usa.
     public function obtenerTodas($estado = "", $idContenedor = "", $desde = "", $hasta = "", $idVecino = "")
     {
         $result = mysqli_query($this->conn, $this->consulta . " ORDER BY i.fecha_deteccion DESC, i.id_incidencia DESC");
 
         $incidencias = [];
         while ($row = mysqli_fetch_assoc($result)) {
-            // Si no cumple con algun filtro, la salteamos
+            
             if ($estado != "" && $row['estado'] != $estado) continue;
             if ($idContenedor != "" && $row['id_contenedor'] != $idContenedor) continue;
             if ($desde != "" && $row['fecha_deteccion'] < $desde) continue;
@@ -54,8 +48,6 @@ class Incidencia
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Registra una incidencia nueva. Queda Abierta y con la fecha de hoy.
-    // $referencia es donde esta exactamente el problema (puede venir vacia)
     public function agregar($idContenedor, $zona, $tipo, $prioridad, $descripcion, $referencia = "")
     {
         if ($referencia == "") {
@@ -69,8 +61,6 @@ class Incidencia
         return $this->obtenerPorId($this->conn->insert_id);
     }
 
-    // Seguimiento: cambia el estado, la prioridad y el recorrido (cuadrilla) que la resuelve.
-    // Si queda Resuelta se guarda la fecha de resolucion.
     public function modificarSeguimiento($id, $estado, $prioridad, $idRecorrido)
     {
         if ($estado == "Resuelta") {
@@ -86,7 +76,6 @@ class Incidencia
         return $this->obtenerPorId($id);
     }
 
-    // Cuantas incidencias sin resolver tiene un contenedor
     public function contarSinResolver($idContenedor)
     {
         $stmt = $this->conn->prepare("SELECT COUNT(*) AS cantidad FROM incidencias WHERE id_contenedor = ? AND estado <> 'Resuelta'");
@@ -103,7 +92,6 @@ class Incidencia
         return $stmt->get_result()->fetch_assoc() != null;
     }
 
-    // Devuelve la cuadrilla de un recorrido
     public function cuadrillaDelRecorrido($idRecorrido)
     {
         $stmt = $this->conn->prepare("SELECT id_cuadrilla FROM recorridos WHERE id_recorrido = ?");
@@ -112,7 +100,6 @@ class Incidencia
         return $stmt->get_result()->fetch_assoc()['id_cuadrilla'];
     }
 
-    // Devuelve true si ese recorrido es de la cuadrilla del recolector
     public function esRecorridoDelRecolector($idRecorrido, $idUsuario)
     {
         $stmt = $this->conn->prepare("SELECT r.id_recorrido FROM recorridos r

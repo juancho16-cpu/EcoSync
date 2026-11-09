@@ -1,27 +1,9 @@
--- =====================================================================
--- SiGeRU - Sistema de Gestión de Residuos Urbanos
--- DDL de creación de la base de datos y sus tablas (primera versión)
--- Empresa: EcoSync
--- Motor: MySQL 8
---
--- ATENCION: este archivo BORRA la base de datos sigeru y la crea vacia (DROP DATABASE).
--- Se importa solo la PRIMERA VEZ que se instala el sistema en una computadora.
--- Si ya tienen datos cargados (usuarios, incidencias...) NO lo vuelvan a importar:
--- para los cambios nuevos de la base se usan los archivos de la carpeta "actualizaciones",
--- que agregan lo nuevo sin borrar nada.
--- =====================================================================
 
 SET NAMES utf8mb4;
 
 DROP DATABASE IF EXISTS sigeru;
 CREATE DATABASE sigeru CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sigeru;
-
--- ---------------------------------------------------------------------
--- USUARIOS Y ROLES
--- Usuarios es el supertipo. Segun el rol, el usuario tiene ademas
--- un registro en vecinos, operarios o recolectores (RNE03: un solo rol).
--- ---------------------------------------------------------------------
 
 CREATE TABLE usuarios (
     id_usuario       INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,9 +19,6 @@ CREATE TABLE usuarios (
     codigo_verificacion VARCHAR(64),     -- resumen SHA-256 del codigo del enlace (no el codigo)
     fecha_registro   DATETIME DEFAULT CURRENT_TIMESTAMP
 );
--- estado: un vecino que se registra queda "Sin verificar" hasta que abre el enlace del correo.
--- Despues queda "Pendiente" hasta que un administrador lo aprueba (o "Activo" si no hace falta aprobar).
--- Solo los usuarios "Activo" pueden iniciar sesion.
 
 CREATE TABLE vecinos (
     id_usuario INT PRIMARY KEY,
@@ -59,16 +38,11 @@ CREATE TABLE administradores (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
--- ---------------------------------------------------------------------
--- CUADRILLAS, RUTAS Y RECORRIDOS
--- ---------------------------------------------------------------------
-
 CREATE TABLE cuadrillas (
     id_cuadrilla INT AUTO_INCREMENT PRIMARY KEY,
     nombre       VARCHAR(100) NOT NULL
 );
 
--- Relacion Integra: un recolector pertenece a una cuadrilla (N:1)
 CREATE TABLE recolectores (
     id_usuario    INT PRIMARY KEY,
     id_cuadrilla  INT,
@@ -94,8 +68,6 @@ CREATE TABLE camiones (
     longitud        DECIMAL(9,6)
 );
 
--- Agregacion: Cuadrilla "recorre" Ruta (N:N).
--- La agregacion "Utiliza" un camion (N:1) con fecha y horario.
 CREATE TABLE recorridos (
     id_recorrido      INT AUTO_INCREMENT PRIMARY KEY,
     id_cuadrilla      INT NOT NULL,
@@ -110,7 +82,6 @@ CREATE TABLE recorridos (
     FOREIGN KEY (id_camion)    REFERENCES camiones(id_camion) ON DELETE SET NULL
 );
 
--- Relacion Recorre: cada zona la recorre un recorrido (N:1)
 CREATE TABLE zonas (
     id_zona       INT AUTO_INCREMENT PRIMARY KEY,
     nombre        VARCHAR(100) NOT NULL,
@@ -119,7 +90,6 @@ CREATE TABLE zonas (
     FOREIGN KEY (id_recorrido) REFERENCES recorridos(id_recorrido) ON DELETE SET NULL
 );
 
--- Entidad debil Mantenimiento (relacion Tiene con Camion, 1:N)
 CREATE TABLE mantenimientos (
     id_camion         INT NOT NULL,
     nro_mantenimiento INT NOT NULL,
@@ -131,19 +101,12 @@ CREATE TABLE mantenimientos (
     FOREIGN KEY (id_camion) REFERENCES camiones(id_camion) ON DELETE CASCADE
 );
 
--- ---------------------------------------------------------------------
--- CONTENEDORES E INCIDENCIAS
--- ---------------------------------------------------------------------
-
 CREATE TABLE tipos_residuo (
     id_residuo  INT AUTO_INCREMENT PRIMARY KEY,
     nombre      VARCHAR(80) NOT NULL,
     descripcion TEXT
 );
 
--- Relacion Almacena: cada contenedor guarda un solo tipo de residuo (RNE01)
--- municipio: uno de los 8 municipios de Montevideo
--- latitud y longitud: ubicacion en el mapa
 CREATE TABLE contenedores (
     id_contenedor      INT AUTO_INCREMENT PRIMARY KEY,
     calle              VARCHAR(100) NOT NULL,
@@ -158,12 +121,6 @@ CREATE TABLE contenedores (
     FOREIGN KEY (id_residuo) REFERENCES tipos_residuo(id_residuo)
 );
 
--- Relacion Genera1: un contenedor genera muchas incidencias (1:N)
--- Relacion Resuelven: un recorrido (cuadrilla) resuelve muchas incidencias (1:N)
--- RNE02: una incidencia tiene un solo estado a la vez
--- tipo: que problema hay en el contenedor o alrededor (se usa para el top de desbordados)
--- referencia: donde esta exactamente el problema (lo escribe el que lo reporta)
--- fecha: ultimo cambio de estado. fecha_resolucion: dia en que quedo Resuelta
 CREATE TABLE incidencias (
     id_incidencia    INT AUTO_INCREMENT PRIMARY KEY,
     id_contenedor    INT NOT NULL,
@@ -181,8 +138,6 @@ CREATE TABLE incidencias (
     FOREIGN KEY (id_recorrido)  REFERENCES recorridos(id_recorrido) ON DELETE SET NULL
 );
 
--- Entidad debil Notificaciones (relacion Realizan con Vecino, 1:N)
--- Relacion Genera2: una notificacion genera una incidencia (1:1)
 CREATE TABLE notificaciones (
     id_usuario      INT NOT NULL,
     id_notificacion INT NOT NULL,
@@ -195,12 +150,6 @@ CREATE TABLE notificaciones (
     FOREIGN KEY (id_incidencia) REFERENCES incidencias(id_incidencia) ON DELETE SET NULL
 );
 
--- ---------------------------------------------------------------------
--- INSTALACIONES (CENTROS DE ACOPIO Y VERTEDEROS)
--- Instalacion es el supertipo de CentroAcopio y Vertedero.
--- ---------------------------------------------------------------------
-
--- Relacion Centro_Asignado: un operario tiene asignadas instalaciones (1:N)
 CREATE TABLE instalaciones (
     id_instalacion   INT AUTO_INCREMENT PRIMARY KEY,
     nombre           VARCHAR(100) NOT NULL,
@@ -231,7 +180,6 @@ CREATE TABLE maquinaria (
     estado        VARCHAR(30)
 );
 
--- Relacion Posee: instalaciones y maquinaria (N:N)
 CREATE TABLE instalacion_maquinaria (
     id_instalacion INT NOT NULL,
     id_maquinaria  INT NOT NULL,
@@ -240,7 +188,6 @@ CREATE TABLE instalacion_maquinaria (
     FOREIGN KEY (id_maquinaria)  REFERENCES maquinaria(id_maquinaria) ON DELETE CASCADE
 );
 
--- Relacion Recibe: tipos de residuo que gestiona cada centro (N:N) (RNE05)
 CREATE TABLE centro_residuo (
     id_instalacion INT NOT NULL,
     id_residuo     INT NOT NULL,
@@ -249,7 +196,6 @@ CREATE TABLE centro_residuo (
     FOREIGN KEY (id_residuo)     REFERENCES tipos_residuo(id_residuo) ON DELETE CASCADE
 );
 
--- Relacion Viaja2: traslados de centros de acopio a vertederos (N:N)
 CREATE TABLE centro_vertedero (
     id_centro    INT NOT NULL,
     id_vertedero INT NOT NULL,
@@ -258,7 +204,6 @@ CREATE TABLE centro_vertedero (
     FOREIGN KEY (id_vertedero) REFERENCES vertederos(id_instalacion) ON DELETE CASCADE
 );
 
--- Relacion Viaja: cada planta recibe de un centro de acopio (N:1)
 CREATE TABLE plantas_procesamiento (
     id_planta INT AUTO_INCREMENT PRIMARY KEY,
     nombre    VARCHAR(100) NOT NULL,
@@ -268,11 +213,6 @@ CREATE TABLE plantas_procesamiento (
     FOREIGN KEY (id_centro) REFERENCES centros_acopio(id_instalacion) ON DELETE SET NULL
 );
 
--- ---------------------------------------------------------------------
--- AGREGADO EN LA 3RA ENTREGA
--- ---------------------------------------------------------------------
-
--- Relacion Recibe: cada usuario recibe muchos mensajes (notificaciones de la campana) (1:N)
 CREATE TABLE mensajes (
     id_mensaje INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
@@ -283,15 +223,12 @@ CREATE TABLE mensajes (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
 
--- Parametros del sistema que puede cambiar el administrador (el software es parametrizable)
 CREATE TABLE parametros (
     nombre      VARCHAR(50) PRIMARY KEY,
     valor       VARCHAR(100) NOT NULL,
     descripcion VARCHAR(200)
 );
 
--- Inventario de repuestos: contenedores de repuesto, tapas, ruedas...
--- Relacion Guarda: una instalacion guarda muchos repuestos (1:N)
 CREATE TABLE repuestos (
     id_repuesto     INT AUTO_INCREMENT PRIMARY KEY,
     nombre          VARCHAR(100) NOT NULL,
@@ -304,8 +241,6 @@ CREATE TABLE repuestos (
     FOREIGN KEY (id_instalacion) REFERENCES instalaciones(id_instalacion) ON DELETE SET NULL
 );
 
--- Cada vez que se vacia un contenedor se guarda cuantos kilos se recolectaron (datos simulados)
--- Relacion Vacia: un contenedor tiene muchas recolecciones (1:N)
 CREATE TABLE recolecciones (
     id_recoleccion INT AUTO_INCREMENT PRIMARY KEY,
     id_contenedor  INT NOT NULL,
@@ -314,9 +249,6 @@ CREATE TABLE recolecciones (
     FOREIGN KEY (id_contenedor) REFERENCES contenedores(id_contenedor) ON DELETE CASCADE
 );
 
--- Auditoria: queda guardado quien entro, quien fallo la contraseña, quien creo, borro o cambio
--- el rol de un usuario, etc. Tambien se usa para bloquear un correo despues de muchos intentos fallidos.
--- Relacion Genera: un usuario genera muchos eventos (1:N). id_usuario es NULL si nadie habia iniciado sesion.
 CREATE TABLE auditoria (
     id_auditoria INT AUTO_INCREMENT PRIMARY KEY,
     fecha        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

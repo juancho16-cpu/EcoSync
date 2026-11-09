@@ -1,14 +1,4 @@
 #!/bin/bash
-# =====================================================================
-# Verifica y abre un respaldo firmado de SiGeRU
-#
-# 1. Comprueba la FIRMA DIGITAL con la clave publica (que lo hizo nuestro servidor y que nadie lo cambio)
-# 2. DESCIFRA el archivo con clave_respaldo
-# 3. Comprueba el HASH SHA-256 contra el que se guardo al hacer el respaldo
-# 4. Si se pasa "restaurar", lo carga en MySQL
-#
-# Uso: bash verificar_respaldo.sh sigeru_2026-11-06_0230.sql.gz.enc [restaurar]
-# =====================================================================
 
 CLAVES=${CLAVES:-/etc/sigeru}
 ARCHIVO="$1"

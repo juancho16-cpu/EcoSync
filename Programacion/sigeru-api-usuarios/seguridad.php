@@ -1,6 +1,5 @@
 <?php
-// Revisa que haya alguien con la sesion iniciada y que su rol tenga permiso.
-// Si no, corta y devuelve el error.
+
 function verificarRol($rolesPermitidos) {
     if (!isset($_SESSION['usuario_logueado'])) {
         if (isset($_SESSION['sesion_vencida'])) {

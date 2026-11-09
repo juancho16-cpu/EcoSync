@@ -1,4 +1,3 @@
-// Controlador de la pagina de recorridos (asignar rutas a las cuadrillas)
 
 let listaRecorridos = [];
 let listaZonas = [];
@@ -8,7 +7,6 @@ async function iniciar() {
     const haySesion = await revisarSesion();
     if (!haySesion) return;
 
-    // Las listas del formulario solo hacen falta si puede asignar recorridos
     if (puedeEditar()) {
         try {
             const cuadrillas = await obtenerCuadrillas();
@@ -17,7 +15,6 @@ async function iniciar() {
             const rutas = await obtenerRutas();
             llenarSelect("id_ruta", rutas, "id");
 
-            // En la lista de camiones se muestra su estado, para saber cuales estan disponibles (RNE06)
             const camiones = await obtenerCamiones();
             const select = document.getElementById("id_camion");
             for (const c of camiones) {
@@ -39,7 +36,6 @@ async function cargarRecorridos() {
     }
 }
 
-// Carga las zonas de nuevo (porque cambian de recorrido) y marca las del recorrido elegido
 async function cargarZonas(idRecorrido) {
     listaZonas = await obtenerZonas();
     llenarCasillasZonas(listaZonas);
@@ -60,7 +56,6 @@ async function nuevoRecorrido() {
     abrirModal();
 }
 
-// Abre el formulario con los datos del recorrido elegido
 async function editarRecorrido(id) {
     const r = buscarPorId(listaRecorridos, id);
     idEditando = id;
@@ -93,7 +88,6 @@ async function borrarRecorridoElegido(id) {
 document.getElementById("formRecorrido").addEventListener("submit", async function (evento) {
     evento.preventDefault();
 
-    // Guardamos las zonas que estan marcadas
     const zonas = [];
     const casillas = document.querySelectorAll("input[name='zona']");
     for (const casilla of casillas) {
@@ -123,7 +117,6 @@ document.getElementById("formRecorrido").addEventListener("submit", async functi
         mostrarMensaje(respuesta.mensaje, false);
         cargarRecorridos();
     } catch (error) {
-        // Si hay un error con la ventana abierta, el mensaje no se ve, por eso usamos alert
         alert(error.message);
     }
 });

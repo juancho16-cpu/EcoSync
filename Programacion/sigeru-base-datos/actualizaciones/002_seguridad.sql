@@ -1,10 +1,3 @@
--- =====================================================================
--- Actualizacion 002 - Seguridad: auditoria y bloqueo por intentos fallidos
--- Se importa UNA vez en phpMyAdmin, con la base "sigeru" elegida. NO borra lo que cargaron ustedes.
---
--- 1. Crea la tabla auditoria (quien entro, quien fallo la contraseña, cambios de usuarios y roles...).
--- 2. Agrega los parametros del bloqueo: cuantos intentos fallidos se permiten y cuantos minutos se bloquea.
--- =====================================================================
 
 SET NAMES utf8mb4;
 USE sigeru;

@@ -1,4 +1,3 @@
-// Controlador de la pagina de contenedores
 
 let listaContenedores = [];
 let idEditando = null; // null cuando se esta agregando uno nuevo
@@ -28,7 +27,6 @@ async function cargarContenedores() {
 function buscar() {
     const texto = document.getElementById("buscador").value.toLowerCase();
 
-    // Guardamos solo los que tienen el texto buscado
     const filtrados = [];
     for (const c of listaContenedores) {
         const contenido = (c.calle + " " + c.zona + " municipio " + c.municipio + " " + c.estado + " " + c.residuo).toLowerCase();
@@ -46,7 +44,6 @@ function nuevoContenedor() {
     abrirModal();
 }
 
-// Abre el formulario con los datos del contenedor elegido
 function editarContenedor(id) {
     const c = buscarPorId(listaContenedores, id);
     idEditando = id;
@@ -102,7 +99,6 @@ document.getElementById("formContenedor").addEventListener("submit", async funct
         mostrarMensaje(respuesta.mensaje, false);
         cargarContenedores();
     } catch (error) {
-        // Si hay un error con la ventana abierta, el mensaje no se ve, por eso usamos alert
         alert(error.message);
     }
 });

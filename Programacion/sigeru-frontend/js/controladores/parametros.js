@@ -1,8 +1,6 @@
-// Controlador de la pagina de parametros del sistema (solo el administrador)
 
 let listaParametros = [];
 
-// Opciones de los parametros que no son numeros
 const OPCIONES_PARAMETROS = {
     aprobar_registros: [["si", "Sí, un administrador aprueba a cada vecino"], ["no", "No, entran apenas verifican el correo"]],
     idioma: [["es", "Español"], ["en", "English (inglés)"]]
@@ -20,7 +18,6 @@ async function iniciar() {
     }
 }
 
-// Arma un campo por cada parametro: una lista para elegir o un numero
 function mostrarFormularioParametros(lista) {
     let html = "";
     for (const p of lista) {
@@ -46,7 +43,6 @@ function mostrarFormularioParametros(lista) {
 document.getElementById("formParametros").addEventListener("submit", async function (evento) {
     evento.preventDefault();
 
-    // Juntamos todos los valores: { "idioma": "en", "dias_alerta_desborde": "3", ... }
     const datos = {};
     for (const p of listaParametros) {
         datos[p.nombre] = document.getElementById("param_" + p.nombre).value;
@@ -55,7 +51,6 @@ document.getElementById("formParametros").addEventListener("submit", async funct
     try {
         const respuesta = await guardarParametros(datos);
         mostrarMensaje(respuesta.mensaje, false);
-        // Si cambio el idioma, recargamos para ver la pagina en el idioma nuevo
         if (datos.idioma != idiomaActual) {
             setTimeout(function () {
                 window.location.reload();

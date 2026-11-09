@@ -1,7 +1,5 @@
 <?php
-// Controlador de los mensajes (notificaciones de la campana) y de los parametros del sistema
 
-// Mensajes del usuario que inicio sesion (GET mensajes)
 function listarMensajes($mensaje) {
     $idUsuario = $_SESSION['usuario_logueado']['id'];
 
@@ -11,7 +9,6 @@ function listarMensajes($mensaje) {
     ]);
 }
 
-// Marca como leido un mensaje (PUT mensajes?id=3) o todos (PUT mensajes)
 function leerMensajes($mensaje, $id) {
     $idUsuario = $_SESSION['usuario_logueado']['id'];
 
@@ -23,21 +20,18 @@ function leerMensajes($mensaje, $id) {
     responder(["mensaje" => "Listo"]);
 }
 
-// Lista de parametros (GET parametros)
 function listarParametros($parametro) {
     responder($parametro->obtenerTodos());
 }
 
-// El administrador cambia los parametros (PUT parametros con {"nombre": "valor", ...})
 function modificarParametros($parametro, $datos) {
-    // Lo que puede valer cada parametro
+    
     $numeros = ["dias_alerta_desborde", "porcentaje_centro_lleno", "kilos_por_litro", "intentos_login", "minutos_bloqueo"];
     $opciones = [
         "aprobar_registros" => ["si", "no"],
         "idioma" => ["es", "en"]
     ];
 
-    // Primero revisamos todos, asi no se guarda nada si alguno esta mal
     foreach ($datos as $nombre => $valor) {
         if (in_array($nombre, $numeros)) {
             if (!is_numeric($valor) || $valor < 0) {

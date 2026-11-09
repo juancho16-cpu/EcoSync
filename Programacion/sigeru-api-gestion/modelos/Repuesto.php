@@ -1,11 +1,9 @@
 <?php
-// Modelo Repuesto: inventario de contenedores de repuesto, tapas, ruedas y otras piezas
 
 class Repuesto
 {
     private $conn;
 
-    // Consulta que trae el repuesto con el nombre del tipo de residuo y de la instalacion donde esta guardado
     private $consulta = "SELECT r.id_repuesto AS id, r.nombre, r.tipo, r.id_residuo, t.nombre AS residuo,
                                 r.cantidad, r.cantidad_minima, r.id_instalacion, i.nombre AS instalacion
                          FROM repuestos r
@@ -36,7 +34,6 @@ class Repuesto
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Los que tienen la cantidad minima o menos (hay que reponerlos)
     public function obtenerConPocoStock()
     {
         $result = mysqli_query($this->conn, $this->consulta . " WHERE r.cantidad <= r.cantidad_minima ORDER BY r.nombre");
@@ -81,7 +78,6 @@ class Repuesto
         return $this->obtenerPorId($id);
     }
 
-    // Suma o resta unidades (por ejemplo -1 cuando se usa un repuesto, +5 cuando llegan nuevos)
     public function cambiarCantidad($id, $cambio)
     {
         $stmt = $this->conn->prepare("UPDATE repuestos SET cantidad = cantidad + ? WHERE id_repuesto = ?");
@@ -98,7 +94,6 @@ class Repuesto
         $stmt->execute();
     }
 
-    // Los campos opcionales que vienen vacios del formulario se guardan como NULL
     private function vacioANull($valor)
     {
         if ($valor == "") {

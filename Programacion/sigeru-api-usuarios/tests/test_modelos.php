@@ -1,7 +1,4 @@
 <?php
-// Tests unitarios del modelo Usuario.
-// Usan la base de datos de prueba "sigeru_test", asi no se tocan los datos reales.
-// Se corren con: php tests/test_modelos.php
 
 require_once __DIR__ . "/funciones_test.php";
 require_once __DIR__ . "/../modelos/Usuario.php";

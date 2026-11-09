@@ -1,13 +1,9 @@
 <?php
-// Modelo Recorrido: que ruta hace cada cuadrilla, con que camion y que contenedores le tocan.
-// Un recorrido pasa por varias zonas (barrios) y recoge los contenedores de esas zonas.
-// En el MER es la agregacion "Cuadrilla recorre Ruta", que "Utiliza" un camion.
 
 class Recorrido
 {
     private $conn;
 
-    // Consulta que trae el recorrido con el nombre de la ruta, la cuadrilla y el camion
     private $consulta = "SELECT r.id_recorrido AS id, r.id_cuadrilla, r.id_ruta, r.id_camion,
                                 ru.nombre AS ruta, cu.nombre AS cuadrilla, ca.matricula AS camion,
                                 r.fecha_asignacion, r.hora_inicio, r.hora_fin
@@ -21,7 +17,6 @@ class Recorrido
         $this->conn = $conn;
     }
 
-    // Todos los recorridos (para el administrador y el operario)
     public function obtenerTodos()
     {
         $result = mysqli_query($this->conn, $this->consulta . " ORDER BY r.fecha_asignacion DESC, r.id_recorrido");
@@ -33,7 +28,6 @@ class Recorrido
         return $recorridos;
     }
 
-    // Solo los recorridos de la cuadrilla del recolector
     public function obtenerDelRecolector($idUsuario)
     {
         $stmt = $this->conn->prepare($this->consulta . " JOIN recolectores re ON re.id_cuadrilla = r.id_cuadrilla
@@ -62,7 +56,6 @@ class Recorrido
         return $this->agregarZonasYContenedores($recorrido);
     }
 
-    // Listas para los formularios
     public function obtenerCuadrillas()
     {
         $result = mysqli_query($this->conn, "SELECT id_cuadrilla AS id, nombre FROM cuadrillas ORDER BY nombre");
@@ -85,7 +78,6 @@ class Recorrido
         return $rutas;
     }
 
-    // Devuelve true si existe la cuadrilla
     public function existeCuadrilla($id)
     {
         $stmt = $this->conn->prepare("SELECT id_cuadrilla FROM cuadrillas WHERE id_cuadrilla = ?");
@@ -94,7 +86,6 @@ class Recorrido
         return $stmt->get_result()->fetch_assoc() != null;
     }
 
-    // Devuelve true si existe la ruta
     public function existeRuta($id)
     {
         $stmt = $this->conn->prepare("SELECT id_ruta FROM rutas WHERE id_ruta = ?");
@@ -103,8 +94,6 @@ class Recorrido
         return $stmt->get_result()->fetch_assoc() != null;
     }
 
-    // Devuelve el recorrido que ya tiene esa cuadrilla con esa ruta, o null si no hay.
-    // (cada cuadrilla puede tener una sola vez cada ruta)
     public function buscarPorCuadrillaYRuta($idCuadrilla, $idRuta)
     {
         $stmt = $this->conn->prepare("SELECT id_recorrido AS id FROM recorridos WHERE id_cuadrilla = ? AND id_ruta = ?");
@@ -113,7 +102,6 @@ class Recorrido
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Todas las zonas, con el recorrido que las recorre (para elegirlas en el formulario)
     public function obtenerZonas()
     {
         $result = mysqli_query($this->conn, "SELECT id_zona AS id, nombre, zona_asignada, id_recorrido FROM zonas ORDER BY nombre");
@@ -125,7 +113,6 @@ class Recorrido
         return $zonas;
     }
 
-    // Devuelve true si existe la zona
     public function existeZona($id)
     {
         $stmt = $this->conn->prepare("SELECT id_zona FROM zonas WHERE id_zona = ?");
@@ -159,16 +146,13 @@ class Recorrido
         return $this->obtenerPorId($id);
     }
 
-    // Guarda las zonas que recorre. En el MER cada zona la recorre un solo recorrido,
-    // asi que si la zona estaba en otro recorrido pasa a este.
     private function guardarZonas($id, $zonas)
     {
-        // Primero se sacan las zonas que tenia
+        
         $stmt = $this->conn->prepare("UPDATE zonas SET id_recorrido = NULL WHERE id_recorrido = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
 
-        // Despues se ponen las elegidas
         foreach ($zonas as $idZona) {
             $stmt = $this->conn->prepare("UPDATE zonas SET id_recorrido = ? WHERE id_zona = ?");
             $stmt->bind_param("ii", $id, $idZona);
@@ -176,7 +160,6 @@ class Recorrido
         }
     }
 
-    // Borra el recorrido. Las zonas quedan sin recorrido (ON DELETE SET NULL).
     public function eliminar($id)
     {
         $stmt = $this->conn->prepare("DELETE FROM recorridos WHERE id_recorrido = ?");
@@ -184,7 +167,6 @@ class Recorrido
         $stmt->execute();
     }
 
-    // Pone los datos del formulario en la consulta. Las horas vacias se guardan como NULL.
     private function cargarDatos($stmt, $datos, $id)
     {
         $idCuadrilla = $datos['id_cuadrilla'];
@@ -204,7 +186,6 @@ class Recorrido
         }
     }
 
-    // Le agrega al recorrido la lista de zonas y los contenedores que hay en esas zonas
     private function agregarZonasYContenedores($recorrido)
     {
         $stmt = $this->conn->prepare("SELECT nombre FROM zonas WHERE id_recorrido = ? ORDER BY id_zona");

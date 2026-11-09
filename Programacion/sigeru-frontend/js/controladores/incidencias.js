@@ -1,5 +1,3 @@
-// Controlador de la pagina de incidencias: reporte y seguimiento.
-// La usan todos: el personal ve todas, y el vecino ve solo las que reporto ("Mis incidencias").
 
 let listaIncidencias = [];
 let misRecorridos = [];   // recorridos del recolector (solo puede cambiar las incidencias de estos)
@@ -9,22 +7,18 @@ async function iniciar() {
     const haySesion = await revisarSesion();
     if (!haySesion) return;
 
-    // El vecino ve la pagina como "Mis incidencias"
     if (usuarioLogueado.rol == "Vecino") {
         document.querySelector("h1").textContent = "Mis incidencias";
         document.querySelector(".subtitulo").textContent = "¿Un contenedor está lleno, roto, no lo vinieron a vaciar o hay basura en la calle? Reportalo y seguí acá cómo va.";
     }
 
     try {
-        // Contenedores para el formulario de reportar
         const contenedores = await obtenerContenedores();
         const select = document.getElementById("id_contenedor");
         for (const c of contenedores) {
             select.innerHTML += `<option value="${c.id}">#${c.id} ${limpiarTexto(c.calle)} (${limpiarTexto(c.zona)})</option>`;
         }
 
-        // Recorridos (solo el personal): el administrador y el operario los eligen en el seguimiento,
-        // y al recolector le llegan solo los de su cuadrilla
         if (usuarioLogueado.rol != "Vecino") {
             const recorridos = await obtenerRecorridos();
             const selectRecorrido = document.getElementById("seguimientoRecorrido");
@@ -38,23 +32,19 @@ async function iniciar() {
     }
     await cargarIncidencias();
 
-    // Si viene del mapa (incidencias.html?contenedor=5), se abre el formulario con ese contenedor
     const parametros = new URLSearchParams(window.location.search);
     if (parametros.get("contenedor")) {
         nuevaIncidencia();
         document.getElementById("id_contenedor").value = parametros.get("contenedor");
 
-        // Sacamos el ?contenedor= de la direccion, asi si recarga la pagina no se vuelve a abrir el formulario
         history.replaceState(null, "", "incidencias.html");
     }
 }
 
-// Devuelve true si el usuario puede hacerle el seguimiento a esa incidencia
 function puedeCambiar(i) {
     if (i.estado == "Resuelta") return false;
     if (usuarioLogueado.rol == "Vecino") return false;
     if (puedeEditar()) return true;
-    // El recolector solo las que tiene asignadas su cuadrilla
     return misRecorridos.includes(Number(i.id_recorrido));
 }
 
@@ -69,7 +59,6 @@ async function cargarIncidencias() {
         listaIncidencias = await obtenerIncidencias(filtros);
         for (const i of listaIncidencias) {
             i.puedeCambiar = puedeCambiar(i);
-            // El historial de un contenedor es para el personal
             i.conHistorial = usuarioLogueado.rol != "Vecino";
         }
         buscar();
@@ -78,7 +67,6 @@ async function cargarIncidencias() {
     }
 }
 
-// Filtra la tabla con lo que se escribe en el buscador
 function buscar() {
     const texto = document.getElementById("buscador").value.toLowerCase();
     const filtrada = [];
@@ -91,7 +79,6 @@ function buscar() {
     mostrarTablaIncidencias(filtrada);
 }
 
-// ----- Reportar una incidencia -----
 function nuevaIncidencia() {
     document.getElementById("formIncidencia").reset();
     document.getElementById("tituloModal").textContent = "Reportar una incidencia";
@@ -119,7 +106,6 @@ document.getElementById("formIncidencia").addEventListener("submit", async funct
     }
 });
 
-// ----- Seguimiento -----
 function abrirSeguimiento(id) {
     const i = buscarPorId(listaIncidencias, id);
     idSiguiendo = id;
@@ -167,7 +153,6 @@ document.getElementById("formSeguimiento").addEventListener("submit", async func
     }
 });
 
-// ----- Historial de un contenedor -----
 async function verHistorial(idContenedor) {
     try {
         const historial = await obtenerIncidencias("contenedor=" + idContenedor);

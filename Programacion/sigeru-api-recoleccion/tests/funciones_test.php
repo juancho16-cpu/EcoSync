@@ -1,12 +1,8 @@
 <?php
-// Funciones que usan los tests. No usan ninguna libreria, asi se pueden correr en XAMPP con:
-//   php tests/test_modelos.php
-//   php tests/test_api.php
 
 $pasaron = 0;
 $fallaron = 0;
 
-// Si la condicion es verdadera la prueba pasa, si no falla
 function verificar($condicion, $descripcion) {
     global $pasaron, $fallaron;
 
@@ -23,7 +19,6 @@ function titulo($texto) {
     echo "\n== $texto ==\n";
 }
 
-// Muestra cuantas pasaron y cuantas fallaron. Si alguna fallo, termina con error.
 function mostrarResumen() {
     global $pasaron, $fallaron;
 
@@ -34,10 +29,6 @@ function mostrarResumen() {
     exit(0);
 }
 
-// ---------- Para los tests de los modelos ----------
-
-// Crea la base de datos de prueba "sigeru_test" con las mismas tablas y datos que la real.
-// Asi los tests no tocan los datos de la base "sigeru".
 function crearBaseDePrueba() {
     $hostname = "localhost";
     if (getenv("DB_HOST")) {
@@ -52,12 +43,10 @@ function crearBaseDePrueba() {
     }
     mysqli_set_charset($conn, "utf8mb4");
 
-    // Los archivos de la base de datos estan en la carpeta sigeru-base-datos
     $carpeta = __DIR__ . "/../../sigeru-base-datos";
     $ddl = file_get_contents($carpeta . "/ddl/sigeru_ddl.sql");
     $datos = file_get_contents($carpeta . "/datos/sigeru_datos_prueba.sql");
 
-    // Cambiamos el nombre de la base por sigeru_test
     $ddl = str_replace("DROP DATABASE IF EXISTS sigeru;", "DROP DATABASE IF EXISTS sigeru_test;", $ddl);
     $ddl = str_replace("CREATE DATABASE sigeru ", "CREATE DATABASE sigeru_test ", $ddl);
     $ddl = str_replace("USE sigeru;", "USE sigeru_test;", $ddl);
@@ -70,9 +59,8 @@ function crearBaseDePrueba() {
     return $conn;
 }
 
-// Ejecuta un archivo .sql entero (tiene muchas consultas separadas por ;)
 function ejecutarScript($conn, $sql) {
-    // Sacamos las lineas de comentarios (empiezan con --)
+    
     $lineas = explode("\n", $sql);
     $sinComentarios = "";
     foreach ($lineas as $linea) {
@@ -81,7 +69,6 @@ function ejecutarScript($conn, $sql) {
         }
     }
 
-    // Separamos las consultas por el ; y las ejecutamos una por una
     $consultas = explode(";", $sinComentarios);
     foreach ($consultas as $consulta) {
         if (trim($consulta) == "") {
@@ -94,16 +81,11 @@ function ejecutarScript($conn, $sql) {
     }
 }
 
-// Cuenta las filas de una consulta (para revisar la base de datos en los tests)
 function contarFilas($conn, $sql) {
     $resultado = mysqli_query($conn, $sql);
     return mysqli_num_rows($resultado);
 }
 
-// ---------- Para los tests de la API ----------
-
-// Se conecta a la base de datos real "sigeru". Los tests de la API la usan solo para
-// borrar al final lo que crearon y que la API no deja borrar (las notificaciones).
 function conectarBaseReal() {
     $hostname = "localhost";
     if (getenv("DB_HOST")) {
@@ -113,9 +95,6 @@ function conectarBaseReal() {
     return mysqli_connect($hostname, "root", "", "sigeru");
 }
 
-// Hace un pedido a la API como lo haria el navegador.
-// $usuario es el nombre del archivo donde se guarda la cookie de la sesion (uno por cada usuario).
-// Devuelve el codigo HTTP y la respuesta en JSON.
 function pedir($metodo, $url, $datos, $usuario) {
     $cookies = sys_get_temp_dir() . "/sigeru_test_" . $usuario . ".txt";
 
@@ -140,9 +119,8 @@ function pedir($metodo, $url, $datos, $usuario) {
     return ["codigo" => $codigo, "json" => json_decode($texto, true)];
 }
 
-// Inicia sesion con un usuario y guarda su cookie
 function entrar($urlUsuarios, $usuario, $email, $contrasena) {
-    // Se borra la cookie anterior para empezar de cero
+    
     $cookies = sys_get_temp_dir() . "/sigeru_test_" . $usuario . ".txt";
     if (file_exists($cookies)) {
         unlink($cookies);

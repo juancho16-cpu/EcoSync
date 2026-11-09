@@ -1,6 +1,4 @@
 <?php
-// Modelo Usuario: guarda, busca, modifica y borra usuarios en la base de datos
-// El telefono se guarda cifrado con AES-256-GCM y el codigo del enlace de verificacion como resumen SHA-256 (ver cifrado.php)
 
 require_once __DIR__ . "/../cifrado.php";
 
@@ -8,7 +6,6 @@ class Usuario
 {
     private $conn;
 
-    // Consulta que trae los datos del usuario y los de su rol (vecino u operario)
     private $consulta = "SELECT u.id_usuario AS id, u.primer_nombre, u.segundo_nombre, u.primer_apellido,
                                 u.segundo_apellido, u.email, u.telefono, u.rol, u.estado, u.fecha_registro,
                                 v.calle, v.zona, o.especialidad
@@ -16,7 +13,6 @@ class Usuario
                          LEFT JOIN vecinos v ON u.id_usuario = v.id_usuario
                          LEFT JOIN operarios o ON u.id_usuario = o.id_usuario";
 
-    // Tabla donde se guardan los datos de cada rol
     private $tablaDelRol = [
         "Administrador" => "administradores",
         "Operario" => "operarios",
@@ -29,10 +25,9 @@ class Usuario
         $this->conn = $conn;
     }
 
-    // Devuelve todos los usuarios (sin la contraseña)
     public function obtenerTodos()
     {
-        // Los telefonos que se cargaron antes del cifrado (por ejemplo los datos de prueba) se cifran ahora
+        
         $this->cifrarTelefonosViejos();
 
         $result = mysqli_query($this->conn, $this->consulta . " ORDER BY u.id_usuario");
@@ -53,7 +48,6 @@ class Usuario
         return $this->descifrarFila($stmt->get_result()->fetch_assoc());
     }
 
-    // Este si devuelve la contraseña, porque se usa para el login
     public function buscarPorEmail($email)
     {
         $stmt = $this->conn->prepare("SELECT * FROM usuarios WHERE email = ?");
@@ -62,9 +56,6 @@ class Usuario
         return $this->descifrarFila($stmt->get_result()->fetch_assoc());
     }
 
-    // Guarda un usuario nuevo y devuelve sus datos.
-    // $estado es "Activo" cuando lo crea el administrador, o "Sin verificar" cuando se registra desde la landing
-    // (en ese caso tambien se guarda el codigo que va en el enlace del correo).
     public function agregar($datos, $estado = "Activo", $codigo = null)
     {
         $nombre = $datos['primer_nombre'];
@@ -72,13 +63,11 @@ class Usuario
         $email = $datos['email'];
         $telefono = $datos['telefono'] ?? "";
         $rol = $datos['rol'];
-        // La contraseña se guarda encriptada
+        
         $contrasena = password_hash($datos['contrasena'], PASSWORD_DEFAULT);
 
-        // El telefono es un dato personal: se guarda cifrado (si viene vacio queda NULL)
         $telefono = cifrar($telefono);
 
-        // Del codigo de verificacion se guarda solo su resumen SHA-256
         if ($codigo != null) {
             $codigo = resumen($codigo);
         }
@@ -88,14 +77,12 @@ class Usuario
         $stmt->bind_param("ssssssss", $nombre, $apellido, $email, $telefono, $contrasena, $rol, $estado, $codigo);
         $stmt->execute();
 
-        // Numero de id que le dio la base de datos al usuario nuevo
         $id = $this->conn->insert_id;
 
         $this->guardarDatosDelRol($id, $rol, $datos);
         return $this->obtenerPorId($id);
     }
 
-    // Cambia los datos de un usuario. La contraseña solo se cambia si escribieron una nueva.
     public function modificar($id, $datos)
     {
         $anterior = $this->obtenerPorId($id);
@@ -106,7 +93,6 @@ class Usuario
         $telefono = $datos['telefono'] ?? "";
         $rol = $datos['rol'];
 
-        // El telefono es un dato personal: se guarda cifrado (si viene vacio queda NULL)
         $telefono = cifrar($telefono);
 
         $stmt = $this->conn->prepare("UPDATE usuarios SET primer_nombre = ?, primer_apellido = ?, email = ?, telefono = ?, rol = ? WHERE id_usuario = ?");
@@ -121,7 +107,7 @@ class Usuario
         }
 
         if ($anterior['rol'] != $rol) {
-            // Si le cambiaron el rol, se borra de la tabla del rol viejo y se guarda en la del nuevo
+            
             $tabla = $this->tablaDelRol[$anterior['rol']];
             $stmt = $this->conn->prepare("DELETE FROM $tabla WHERE id_usuario = ?");
             $stmt->bind_param("i", $id);
@@ -129,7 +115,7 @@ class Usuario
 
             $this->guardarDatosDelRol($id, $rol, $datos);
         } else {
-            // Si sigue con el mismo rol, se actualizan los datos de su tabla
+            
             if ($rol == "Vecino") {
                 $calle = $datos['calle'] ?? "";
                 $zona = $datos['zona'] ?? "";
@@ -148,10 +134,9 @@ class Usuario
         return $this->obtenerPorId($id);
     }
 
-    // Busca al usuario que tiene ese codigo de verificacion (el que va en el enlace del correo)
     public function buscarPorCodigo($codigo)
     {
-        // En la base esta guardado el resumen SHA-256 del codigo, no el codigo
+        
         $resumenCodigo = resumen($codigo);
         $stmt = $this->conn->prepare("SELECT * FROM usuarios WHERE codigo_verificacion = ? AND estado = 'Sin verificar'");
         $stmt->bind_param("s", $resumenCodigo);
@@ -159,8 +144,6 @@ class Usuario
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Cambia el estado del usuario (Sin verificar, Pendiente, Activo o Rechazado).
-    // El codigo de verificacion se borra porque ya no sirve.
     public function cambiarEstado($id, $estado)
     {
         $stmt = $this->conn->prepare("UPDATE usuarios SET estado = ?, codigo_verificacion = NULL WHERE id_usuario = ?");
@@ -168,7 +151,6 @@ class Usuario
         $stmt->execute();
     }
 
-    // Borra un usuario (sus datos del rol se borran solos por el ON DELETE CASCADE)
     public function eliminar($id)
     {
         $stmt = $this->conn->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
@@ -176,7 +158,6 @@ class Usuario
         $stmt->execute();
     }
 
-    // Guarda los datos que van en la tabla de cada rol
     private function guardarDatosDelRol($id, $rol, $datos)
     {
         if ($rol == "Vecino") {
@@ -204,7 +185,6 @@ class Usuario
         }
     }
 
-    // Descifra el telefono de una fila (si la fila existe)
     private function descifrarFila($fila)
     {
         if ($fila != null) {
@@ -213,7 +193,6 @@ class Usuario
         return $fila;
     }
 
-    // Cifra los telefonos que todavia estan guardados como texto (los que no empiezan con "enc:")
     public function cifrarTelefonosViejos()
     {
         $result = mysqli_query($this->conn, "SELECT id_usuario, telefono FROM usuarios WHERE telefono IS NOT NULL AND telefono NOT LIKE 'enc:%'");

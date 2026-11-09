@@ -1,4 +1,3 @@
-// Controlador de la pagina de camiones
 
 let listaCamiones = [];
 let idEditando = null; // null cuando se esta agregando uno nuevo
@@ -22,7 +21,6 @@ async function cargarCamiones() {
 function buscar() {
     const texto = document.getElementById("buscador").value.toLowerCase();
 
-    // Guardamos solo los que tienen el texto buscado
     const filtrados = [];
     for (const c of listaCamiones) {
         const contenido = (c.matricula + " " + c.estado + " " + c.disponibilidad).toLowerCase();
@@ -40,7 +38,6 @@ function nuevoCamion() {
     abrirModal();
 }
 
-// Abre el formulario con los datos del camion elegido
 function editarCamion(id) {
     const c = buscarPorId(listaCamiones, id);
     idEditando = id;
@@ -88,19 +85,16 @@ document.getElementById("formCamion").addEventListener("submit", async function 
         mostrarMensaje(respuesta.mensaje, false);
         cargarCamiones();
     } catch (error) {
-        // Si hay un error con la ventana abierta, el mensaje no se ve, por eso usamos alert
         alert(error.message);
     }
 });
 
-// ----- Mantenimientos del camion -----
 let camionDeMantenimiento = null; // camion que se esta mirando en la ventana de mantenimientos
 
 async function verMantenimientos(id) {
     camionDeMantenimiento = buscarPorId(listaCamiones, id);
     document.getElementById("tituloMantenimientos").textContent = "Mantenimientos del camión " + camionDeMantenimiento.matricula;
     document.getElementById("formMantenimiento").reset();
-    // La fecha de hoy ya viene puesta
     document.getElementById("fechaMantenimiento").value = fechaDeHoy();
     document.getElementById("mantenimientosModal").showModal();
     await cargarMantenimientos();

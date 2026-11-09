@@ -1,12 +1,9 @@
 <?php
-// Controlador de las alertas (GET alertas). Cada rol ve las alertas que le sirven.
-// Cada alerta tiene: nivel (alta, media o info), texto y enlace (la pagina donde se resuelve).
 
 function listarAlertas($alerta, $parametro) {
     $usuario = $_SESSION['usuario_logueado'];
     $alertas = [];
 
-    // Los limites salen de los parametros del sistema (los puede cambiar el administrador)
     $dias = intval($parametro->obtener("dias_alerta_desborde", "2"));
     $porcentaje = floatval($parametro->obtener("porcentaje_centro_lleno", "80"));
 

@@ -1,8 +1,6 @@
-// Controlador de la pagina del mapa
 
 let mapa = null;
 
-// Datos que vienen de la API
 let contenedores = [];
 let incidencias = [];
 let instalaciones = [];
@@ -10,10 +8,8 @@ let camiones = [];
 let recorridos = [];
 let limitesMunicipios = null; // archivo de la Intendencia (puede no estar)
 
-// Grupos de marcas del mapa. Cada grupo se puede mostrar u ocultar.
 let capaContenedores, capaIncidencias, capaInstalaciones, capaCamiones, capaRecorridos, capaMunicipios, capaUbicacion;
 
-// Marcas de los camiones, para poder moverlas
 let marcasCamiones = [];
 let caminos = {};          // camino por las calles de cada recorrido: caminos[id del recorrido] = lista de [lat, lng]
 let caminoPorCalles = {};  // caminoPorCalles[id del recorrido] = true si salio de OSRM, false si es en linea recta
@@ -48,23 +44,19 @@ async function iniciar() {
         mostrarMensaje(error.message, true);
     }
 
-    // El administrador y el operario pueden agregar contenedores tocando el mapa
     if (puedeEditar()) {
         mapa.on("click", tocarMapa);
     }
 
-    // Cada 200 milisegundos los camiones que estan en ruta avanzan un poco por su recorrido (es una simulacion)
     if (esPersonal()) {
         setInterval(moverCamiones, 200);
     }
 }
 
-// Devuelve true si el usuario no es vecino (recolector, operario o administrador)
 function esPersonal() {
     return usuarioLogueado.rol != "Vecino";
 }
 
-// Pide todos los datos a la API y dibuja el mapa
 async function cargarDatos() {
     contenedores = await obtenerContenedores();
 
@@ -75,14 +67,11 @@ async function cargarDatos() {
         recorridos = await obtenerRecorridos();
         mostrarListaRecorridos(recorridos, COLORES_RECORRIDOS);
         dibujarTodo();
-        // Los caminos por las calles tardan un poco (se piden a internet): no esperamos,
-        // el mapa se ve igual y cuando llegan se vuelve a dibujar
         prepararCaminos();
     }
     dibujarTodo();
 }
 
-// Vuelve a dibujar todo segun los filtros y las casillas de capas
 function dibujarTodo() {
     dibujarContenedores();
     if (esPersonal()) {
@@ -95,7 +84,6 @@ function dibujarTodo() {
     }
 }
 
-// Devuelve true si el contenedor pasa los filtros de estado, residuo y municipio
 function pasaFiltros(c) {
     const estado = document.getElementById("filtroEstado").value;
     const residuo = document.getElementById("filtroResiduo").value;
@@ -107,7 +95,6 @@ function pasaFiltros(c) {
     return true;
 }
 
-// Devuelve true si la casilla de esa capa esta marcada
 function capaVisible(idCasilla) {
     return document.getElementById(idCasilla).checked;
 }
@@ -116,7 +103,6 @@ function dibujarContenedores() {
     capaContenedores.clearLayers();
     if (!capaVisible("verContenedores")) return;
 
-    // Botones de la ventanita: el personal vacia y reporta, el vecino avisa
     let botones = "vecino";
     if (esPersonal()) {
         botones = "personal";
@@ -144,7 +130,6 @@ function dibujarIncidencias() {
         if (i.estado == "Resuelta" || i.latitud == null) continue;
         if (municipio != "" && i.municipio != municipio) continue;
 
-        // Se corre un poquito hacia arriba para que no tape el contenedor
         const clase = "marca-alerta-" + i.prioridad.toLowerCase();
         L.marker([Number(i.latitud) + 0.0012, i.longitud], { icon: crearIcono(clase, icono("alerta")) })
             .bindPopup(textoIncidencia(i))
@@ -182,8 +167,6 @@ function dibujarCamiones() {
     }
 }
 
-// Arma el camino de cada recorrido: sale del primer contenedor, pasa por todos (del mas cercano al mas lejano)
-// y vuelve al principio. Primero se pide por las calles; si no se puede, se usa la linea recta entre contenedores.
 async function prepararCaminos() {
     for (const r of recorridos) {
         if (caminos[r.id] != undefined) continue;
@@ -194,7 +177,6 @@ async function prepararCaminos() {
             puntos.push([Number(c.latitud), Number(c.longitud)]);
         }
         if (puntos.length == 0) continue;
-        // Vuelve al primer contenedor para dar la vuelta completa
         puntos.push(puntos[0]);
 
         let camino = null;
@@ -202,12 +184,9 @@ async function prepararCaminos() {
             camino = await pedirCaminoPorCalles(puntos);
         }
         if (camino != null) {
-            // Por las calles: le agregamos puntos cada 10 metros, asi el camion se mueve parejo
             caminoPorCalles[r.id] = true;
             caminos[r.id] = agregarPuntosIntermedios(camino, 10);
         } else {
-            // Sin el camino por las calles no lo hacemos andar en linea recta (podria cruzar el agua):
-            // el camion se queda un rato en cada contenedor y despues pasa al siguiente
             caminoPorCalles[r.id] = false;
             caminos[r.id] = puntos;
         }
@@ -215,7 +194,6 @@ async function prepararCaminos() {
     dibujarTodo();
 }
 
-// Entre cada par de puntos agrega puntos cada "metros" metros (para que el movimiento sea suave)
 function agregarPuntosIntermedios(camino, metros) {
     const resultado = [];
     for (let i = 0; i < camino.length - 1; i++) {
@@ -231,7 +209,6 @@ function agregarPuntosIntermedios(camino, metros) {
     return resultado;
 }
 
-// Devuelve el recorrido que tiene asignado un camion (o null si no tiene)
 function recorridoDelCamion(idCamion) {
     for (const r of recorridos) {
         if (r.id_camion == idCamion) return r;
@@ -239,8 +216,6 @@ function recorridoDelCamion(idCamion) {
     return null;
 }
 
-// Los camiones "En ruta" avanzan por el camino de su recorrido (es una simulacion, no es GPS real).
-// Los que no estan en ruta, o no tienen recorrido, se quedan quietos donde estan.
 function moverCamiones() {
     for (const m of marcasCamiones) {
         if (m.camion.disponibilidad != "En ruta") continue;
@@ -249,8 +224,6 @@ function moverCamiones() {
         if (r == null || caminos[r.id] == undefined) continue;
         const camino = caminos[r.id];
 
-        // Avanza al siguiente punto; al llegar al final vuelve a empezar.
-        // Si el camino no es por las calles, cambia de contenedor cada 3 segundos (15 veces 200 milisegundos).
         let paso = pasoCamion[m.camion.id] ?? 0;
         paso = paso + 1;
         let cantidadDePasos = camino.length;
@@ -272,7 +245,6 @@ function moverCamiones() {
     }
 }
 
-// Dibuja cada recorrido: los contenedores numerados en orden y una linea que los une
 function dibujarRecorridos() {
     capaRecorridos.clearLayers();
     if (!capaVisible("verRecorridos")) return;
@@ -290,8 +262,6 @@ function dibujarRecorridos() {
                 .bindPopup(`<strong>${i + 1}. ${limpiarTexto(c.calle)}</strong><br>${limpiarTexto(recorridos[r].ruta)}`)
                 .addTo(capaRecorridos);
         }
-        // Si tenemos el camino por las calles dibujamos ese con linea llena.
-        // Si no, la linea entre los contenedores va punteada (es solo para ver el orden, no es por donde va).
         if (caminoPorCalles[recorridos[r].id]) {
             L.polyline(caminos[recorridos[r].id], { color: color, weight: 5, opacity: 0.75 }).addTo(capaRecorridos);
         } else {
@@ -300,25 +270,20 @@ function dibujarRecorridos() {
     }
 }
 
-// Ordena los contenedores para recorrerlos: empieza por el primero y
-// siempre va al mas cercano que todavia no visito
 function ordenarPorCercania(lista) {
     const ordenados = [];
     if (lista.length == 0) return ordenados;
 
-    // visitado[i] es true cuando el contenedor i ya esta en el recorrido
     const visitado = [];
     for (let i = 0; i < lista.length; i++) {
         visitado.push(false);
     }
 
-    // Empezamos por el primero
     let actual = 0;
     visitado[0] = true;
     ordenados.push(lista[0]);
 
     while (ordenados.length < lista.length) {
-        // Buscamos el mas cercano al actual que todavia no visitamos
         let masCercano = -1;
         let menorDistancia = 0;
         for (let i = 0; i < lista.length; i++) {
@@ -338,7 +303,6 @@ function ordenarPorCercania(lista) {
     return ordenados;
 }
 
-// Cuenta las incidencias abiertas de cada municipio
 function incidenciasPorMunicipio() {
     const cuenta = {};
     for (const m of MUNICIPIOS) {
@@ -352,7 +316,6 @@ function incidenciasPorMunicipio() {
     return cuenta;
 }
 
-// Zonas criticas: pinta cada municipio segun cuantas incidencias abiertas tiene
 function dibujarMunicipios() {
     capaMunicipios.clearLayers();
     if (!capaVisible("verZonasCriticas")) return;
@@ -360,7 +323,6 @@ function dibujarMunicipios() {
     const cuenta = incidenciasPorMunicipio();
 
     if (limitesMunicipios != null) {
-        // Con el archivo de la Intendencia se pintan los limites reales
         L.geoJSON(limitesMunicipios, {
             style: function (limite) {
                 const municipio = municipioDelLimite(limite);
@@ -372,7 +334,6 @@ function dibujarMunicipios() {
             }
         }).addTo(capaMunicipios);
     } else {
-        // Sin el archivo, se dibuja un circulo en el centro de cada municipio
         for (const m of MUNICIPIOS) {
             L.circle(CENTROS_MUNICIPIOS[m], {
                 radius: 1800,
@@ -386,7 +347,6 @@ function dibujarMunicipios() {
     }
 }
 
-// Tabla de resumen por municipio, ordenada de mas incidencias a menos
 function calcularResumen() {
     const cuenta = incidenciasPorMunicipio();
     const resumen = [];
@@ -409,7 +369,6 @@ function calcularResumen() {
     mostrarResumenMunicipios(resumen);
 }
 
-// Muestra un municipio en el mapa (al elegirlo en el filtro)
 function cambiarMunicipio() {
     const municipio = document.getElementById("filtroMunicipio").value;
     if (municipio == "") {
@@ -420,7 +379,6 @@ function cambiarMunicipio() {
     dibujarTodo();
 }
 
-// ----- Estoy aca: ubicacion del usuario y contenedor mas cercano -----
 function buscarMiUbicacion() {
     if (!navigator.geolocation) {
         mostrarMensaje("Tu navegador no permite saber la ubicación", true);
@@ -441,7 +399,6 @@ function mostrarMiUbicacion(posicion) {
         .bindPopup("<strong>Estás acá</strong>")
         .addTo(capaUbicacion);
 
-    // Buscamos el contenedor mas cercano de los que se ven en el mapa
     let cercano = null;
     let menorDistancia = Infinity;
     for (const c of contenedores) {
@@ -469,7 +426,6 @@ function mostrarMiUbicacion(posicion) {
     mostrarMensaje("El contenedor más cercano está en " + cercano.calle + " (a " + distancia + ")", false);
 }
 
-// ----- Vaciar y reportar problemas (recolector, operario y administrador) -----
 async function marcarVaciado(id) {
     try {
         const respuesta = await vaciarContenedor(id);
@@ -481,13 +437,10 @@ async function marcarVaciado(id) {
     }
 }
 
-// Reportar una incidencia: se abre la pagina de incidencias con el contenedor ya elegido
-// (asi el personal y los vecinos usan el mismo formulario)
 function irAReportar(idContenedor) {
     window.location.href = "incidencias.html?contenedor=" + idContenedor;
 }
 
-// ----- Agregar un contenedor tocando el mapa (operario y administrador) -----
 function activarModoAgregar() {
     modoAgregar = !modoAgregar;
     const boton = document.getElementById("botonAgregar");
@@ -517,7 +470,6 @@ function tocarMapa(evento) {
     abrirModal();
 }
 
-// Elige el municipio del punto: con los limites reales si estan, si no el centro mas cercano
 function adivinarMunicipio(lat, lng) {
     if (limitesMunicipios != null) {
         for (const limite of limitesMunicipios.features) {
@@ -565,7 +517,6 @@ document.getElementById("formContenedor").addEventListener("submit", async funct
         mostrarMensaje(respuesta.mensaje, false);
         await cargarDatos();
     } catch (error) {
-        // Si hay un error con la ventana abierta, el mensaje no se ve, por eso usamos alert
         alert(error.message);
     }
 });

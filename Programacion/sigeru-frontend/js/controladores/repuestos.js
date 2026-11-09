@@ -1,4 +1,3 @@
-// Controlador de la pagina del inventario de repuestos
 
 let listaRepuestos = [];
 let idEditando = null; // null cuando se esta agregando uno nuevo
@@ -43,7 +42,6 @@ function buscar() {
     mostrarTablaRepuestos(filtrados, puedeEditar());
 }
 
-// Botones - y + de la tabla: usar uno o agregar uno
 async function usarRepuesto(id, cambio) {
     try {
         const respuesta = await cambiarStock(id, cambio);

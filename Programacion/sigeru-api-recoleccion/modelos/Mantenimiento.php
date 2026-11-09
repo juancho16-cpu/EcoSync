@@ -1,6 +1,4 @@
 <?php
-// Modelo Mantenimiento: arreglos y revisiones de los camiones.
-// En el MER es una entidad debil de Camion: su clave es (id_camion, nro_mantenimiento).
 
 class Mantenimiento
 {
@@ -13,7 +11,6 @@ class Mantenimiento
         $this->conn = $conn;
     }
 
-    // Mantenimientos de un camion, del mas nuevo al mas viejo
     public function obtenerDelCamion($idCamion)
     {
         $stmt = $this->conn->prepare($this->consulta . " WHERE id_camion = ? ORDER BY fecha DESC, nro_mantenimiento DESC");
@@ -36,18 +33,15 @@ class Mantenimiento
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Guarda un mantenimiento. Como es entidad debil, su numero es el siguiente de ese camion (1, 2, 3...).
     public function agregar($datos)
     {
         $idCamion = $datos['id_camion'];
 
-        // Buscamos el numero mas alto de los mantenimientos de ese camion
         $stmt = $this->conn->prepare("SELECT MAX(nro_mantenimiento) AS ultimo FROM mantenimientos WHERE id_camion = ?");
         $stmt->bind_param("i", $idCamion);
         $stmt->execute();
         $ultimo = $stmt->get_result()->fetch_assoc()['ultimo'];
 
-        // Si es su primer mantenimiento, el numero es 1
         if ($ultimo == null) {
             $nro = 1;
         } else {

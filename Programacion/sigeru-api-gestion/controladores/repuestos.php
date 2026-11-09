@@ -1,5 +1,4 @@
 <?php
-// Controlador del inventario de repuestos
 
 function validarRepuesto($contenedor, $maquinaria, $datos) {
     $tipos = ["Contenedor", "Tapa", "Rueda", "Otro"];
@@ -10,7 +9,7 @@ function validarRepuesto($contenedor, $maquinaria, $datos) {
     if (!in_array($datos['tipo'] ?? "", $tipos)) {
         responder(["error" => "El tipo no es válido"], 400);
     }
-    // La cantidad y el minimo tienen que ser numeros enteros de 0 para arriba
+    
     if (!preg_match("/^[0-9]+$/", $datos['cantidad'] ?? "")) {
         responder(["error" => "La cantidad tiene que ser un número entero"], 400);
     }
@@ -38,7 +37,7 @@ function obtenerRepuesto($repuesto, $id) {
 }
 
 function registrarRepuesto($repuesto, $contenedor, $maquinaria, $datos) {
-    // Los numeros pueden venir como numero o como texto: los pasamos a texto para revisarlos
+    
     $datos['cantidad'] = strval($datos['cantidad'] ?? "");
     $datos['cantidad_minima'] = strval($datos['cantidad_minima'] ?? "");
     validarRepuesto($contenedor, $maquinaria, $datos);
@@ -59,8 +58,6 @@ function modificarRepuesto($repuesto, $contenedor, $maquinaria, $id, $datos) {
     responder(["mensaje" => "Repuesto modificado correctamente", "repuesto" => $modificado]);
 }
 
-// Usar o reponer unidades (POST stock?id=1 con {"cambio": -1})
-// Si queda en el minimo o menos, se avisa al administrador y a los operarios.
 function cambiarStock($repuesto, $mensaje, $id, $datos) {
     $actual = $repuesto->obtenerPorId($id);
     if ($actual == null) {
@@ -77,7 +74,6 @@ function cambiarStock($repuesto, $mensaje, $id, $datos) {
 
     $modificado = $repuesto->cambiarCantidad($id, intval($cambio));
 
-    // Si estaba bien y ahora quedo en el minimo o menos, avisamos para reponer
     if ($cambio < 0 && $modificado['cantidad'] <= $modificado['cantidad_minima'] && $actual['cantidad'] > $actual['cantidad_minima']) {
         $texto = "Quedan pocos repuestos de " . $modificado['nombre'] . ": " . $modificado['cantidad'] . " (mínimo " . $modificado['cantidad_minima'] . ")";
         $mensaje->enviarARol("Administrador", $texto, "repuestos.html");

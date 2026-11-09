@@ -1,5 +1,4 @@
 <?php
-// Manda correos con Gmail usando la libreria PHPMailer
 
 require_once "config_correo.php";
 require_once "libs/PHPMailer/Exception.php";
@@ -8,14 +7,11 @@ require_once "libs/PHPMailer/SMTP.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-// Devuelve true si el correo de Gmail esta configurado en config_correo.php
 function correoConfigurado() {
     global $correoGmail, $claveAppGmail;
     return $correoGmail != "" && $claveAppGmail != "";
 }
 
-// Manda un correo. Devuelve true si se mando y false si no.
-// $mensaje es el texto del correo en HTML.
 function enviarCorreo($para, $nombre, $asunto, $mensaje) {
     global $correoGmail, $claveAppGmail;
 
@@ -25,7 +21,7 @@ function enviarCorreo($para, $nombre, $asunto, $mensaje) {
 
     $mail = new PHPMailer(true);
     try {
-        // Datos del servidor de correo de Gmail
+        
         $mail->isSMTP();
         $mail->Host = "smtp.gmail.com";
         $mail->Port = 587;
@@ -35,7 +31,6 @@ function enviarCorreo($para, $nombre, $asunto, $mensaje) {
         $mail->Password = $claveAppGmail;
         $mail->CharSet = "UTF-8";
 
-        // Quien lo manda y a quien
         $mail->setFrom($correoGmail, "SiGeRU - EcoSync");
         $mail->addAddress($para, $nombre);
 
@@ -47,13 +42,12 @@ function enviarCorreo($para, $nombre, $asunto, $mensaje) {
         $mail->send();
         return true;
     } catch (Exception $error) {
-        // Si falla (por ejemplo, la contraseña esta mal) lo anotamos en el log de PHP
+        
         error_log("No se pudo mandar el correo a $para: " . $mail->ErrorInfo);
         return false;
     }
 }
 
-// Arma el correo con los colores de SiGeRU
 function plantillaCorreo($titulo, $mensaje) {
     return "<div style='font-family: Arial, sans-serif; max-width: 520px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden'>
                 <div style='background: #176b3a; color: #fff; padding: 18px 24px; font-size: 22px; font-weight: bold'>SiGeRU</div>
@@ -65,7 +59,6 @@ function plantillaCorreo($titulo, $mensaje) {
             </div>";
 }
 
-// Boton verde para poner dentro del correo
 function botonCorreo($texto, $enlace) {
     return "<p style='text-align: center; margin: 25px 0'>
                 <a href='$enlace' style='background: #176b3a; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold'>$texto</a>

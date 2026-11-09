@@ -1,13 +1,4 @@
 #!/bin/bash
-# =====================================================================
-# Crea las claves que usan los respaldos firmados (se corre UNA vez en el servidor de BD, MV2)
-#
-#   firma_privada.pem  clave RSA 3072 para FIRMAR los respaldos (solo la tiene MV2)
-#   firma_publica.pem  clave publica para VERIFICAR la firma (se copia a MV3 y a quien restaure)
-#   clave_respaldo     contraseña al azar para CIFRAR los respaldos con AES-256
-#
-# Uso: sudo bash crear_claves.sh   (quedan en /etc/sigeru, solo root las puede leer)
-# =====================================================================
 
 CARPETA=${1:-/etc/sigeru}
 mkdir -p "$CARPETA"

@@ -1,12 +1,9 @@
 <?php
-// Modelo Maquinaria: maquinas que hay en las instalaciones (centros de acopio y vertederos).
-// En esta version cada maquina esta en una sola instalacion (tabla instalacion_maquinaria).
 
 class Maquinaria
 {
     private $conn;
 
-    // Consulta que trae la maquina con el nombre de la instalacion donde esta
     private $consulta = "SELECT m.id_maquinaria AS id, m.nombre, m.tipo, m.estado,
                                 im.id_instalacion, i.nombre AS instalacion
                          FROM maquinaria m
@@ -37,8 +34,6 @@ class Maquinaria
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Lista de instalaciones (centros de acopio y vertederos) con su ubicacion.
-    // Se usa para elegir donde esta la maquina y para mostrarlas en el mapa.
     public function obtenerInstalaciones()
     {
         $result = mysqli_query($this->conn, "SELECT i.id_instalacion AS id, i.nombre, i.calle, i.zona,
@@ -55,7 +50,6 @@ class Maquinaria
         return $instalaciones;
     }
 
-    // Devuelve true si existe esa instalacion
     public function existeInstalacion($id)
     {
         $stmt = $this->conn->prepare("SELECT id_instalacion FROM instalaciones WHERE id_instalacion = ?");
@@ -100,7 +94,6 @@ class Maquinaria
         $stmt->execute();
     }
 
-    // Borra donde estaba la maquina y guarda la instalacion nueva (si eligieron una)
     private function guardarInstalacion($id, $idInstalacion)
     {
         $stmt = $this->conn->prepare("DELETE FROM instalacion_maquinaria WHERE id_maquinaria = ?");

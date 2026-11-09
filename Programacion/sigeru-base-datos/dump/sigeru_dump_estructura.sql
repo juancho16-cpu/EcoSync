@@ -1,5 +1,3 @@
--- SiGeRU - Dump de la estructura de la base de datos (sin datos)
--- Generado con: mysqldump -u root --no-data --databases sigeru
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;

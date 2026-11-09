@@ -1,5 +1,4 @@
 <?php
-// Modelo Alerta: busca las cosas que necesitan atencion, segun el rol de cada usuario
 
 class Alerta
 {
@@ -19,9 +18,6 @@ class Alerta
         return $lista;
     }
 
-    // Incidencias de prioridad Alta que todavia estan Abiertas (nadie las tomo).
-    // No se incluyen los desbordados viejos, porque esos ya salen en desbordadosSinAtender.
-    // $dias viene del parametro "dias_alerta_desborde".
     public function prioridadAltaAbiertas($dias)
     {
         $stmt = $this->conn->prepare("SELECT i.id_incidencia AS id, c.calle, c.zona
@@ -35,7 +31,6 @@ class Alerta
         return $this->hacerLista($stmt->get_result());
     }
 
-    // Contenedores desbordados que llevan $dias dias o mas sin que nadie los atienda
     public function desbordadosSinAtender($dias)
     {
         $stmt = $this->conn->prepare("SELECT i.id_incidencia AS id, c.calle, c.zona,
@@ -50,7 +45,6 @@ class Alerta
         return $this->hacerLista($stmt->get_result());
     }
 
-    // Centros de acopio y vertederos que estan al $porcentaje% o mas de su capacidad
     public function instalacionesCasiLlenas($porcentaje)
     {
         $stmt = $this->conn->prepare("SELECT id_instalacion AS id, nombre,
@@ -62,7 +56,6 @@ class Alerta
         return $this->hacerLista($stmt->get_result());
     }
 
-    // Repuestos que estan en la cantidad minima o menos
     public function repuestosConPocoStock()
     {
         $result = mysqli_query($this->conn, "SELECT id_repuesto AS id, nombre, cantidad, cantidad_minima
@@ -70,7 +63,6 @@ class Alerta
         return $this->hacerLista($result);
     }
 
-    // Avisos de vecinos cuya incidencia sigue Abierta
     public function avisosSinAtender()
     {
         $result = mysqli_query($this->conn, "SELECT i.id_incidencia AS id, c.calle
@@ -81,7 +73,6 @@ class Alerta
         return $this->hacerLista($result);
     }
 
-    // Incidencias sin resolver que tiene asignadas la cuadrilla del recolector
     public function delRecolector($idUsuario)
     {
         $stmt = $this->conn->prepare("SELECT i.id_incidencia AS id, i.estado, i.prioridad, c.calle, c.zona
@@ -96,7 +87,6 @@ class Alerta
         return $this->hacerLista($stmt->get_result());
     }
 
-    // Avisos del vecino que cambiaron de estado en los ultimos 7 dias (en proceso o resueltos)
     public function avisosDelVecino($idUsuario)
     {
         $stmt = $this->conn->prepare("SELECT i.id_incidencia AS id, i.estado, c.calle

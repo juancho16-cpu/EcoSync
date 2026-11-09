@@ -1,7 +1,4 @@
 <?php
-// Tests unitarios de los modelos de la API de Gestion.
-// Usan la base de datos de prueba "sigeru_test", asi no se tocan los datos reales.
-// Se corren con: php tests/test_modelos.php
 
 require_once __DIR__ . "/funciones_test.php";
 require_once __DIR__ . "/../modelos/Contenedor.php";
@@ -17,7 +14,6 @@ require_once __DIR__ . "/../modelos/Mensaje.php";
 
 $conn = crearBaseDePrueba();
 
-// ---------------------------------------------------------------
 titulo("Contenedores");
 
 $contenedor = new Contenedor($conn);
@@ -62,7 +58,6 @@ verificar($contenedor->obtenerPorId($id)['estado'] == "Roto", "cambiarEstado cam
 $contenedor->eliminar($id);
 verificar($contenedor->obtenerPorId($id) == null, "Borra el contenedor");
 
-// ---------------------------------------------------------------
 titulo("Centros de acopio");
 
 $centro = new Centro($conn);
@@ -84,7 +79,6 @@ $centro->eliminar($id);
 verificar($centro->obtenerPorId($id) == null, "Borra el centro");
 verificar(contarFilas($conn, "SELECT * FROM centro_residuo WHERE id_instalacion = $id") == 0, "Sus residuos se borran solos (ON DELETE CASCADE)");
 
-// ---------------------------------------------------------------
 titulo("Maquinaria");
 
 $maquinaria = new Maquinaria($conn);
@@ -102,10 +96,8 @@ verificar($modificada['estado'] == "En reparación" && $modificada['id_instalaci
 $maquinaria->eliminar($id);
 verificar($maquinaria->obtenerPorId($id) == null, "Borra la máquina");
 
-// ---------------------------------------------------------------
 titulo("Incidencias");
 
-// La base no trae incidencias de prueba: las creamos aca para probar
 $incidencia = new Incidencia($conn);
 verificar(count($incidencia->obtenerTodas()) == 0, "La base de prueba no trae incidencias");
 
@@ -119,12 +111,10 @@ $d = $incidencia->agregar(11, "Cerro", "Roto", "Alta", "La tapa está rota y no 
 verificar($c['tipo'] == "Basura en la calle", "Acepta el tipo Basura en la calle");
 verificar($contenedor->tieneIncidencias(2) && !$contenedor->tieneIncidencias(4), "tieneIncidencias detecta los que tienen incidencias");
 
-// Les ponemos fechas de deteccion fijas para probar filtros, alertas y estadisticas
 mysqli_query($conn, "UPDATE incidencias SET fecha_deteccion = '2026-11-02' WHERE id_incidencia = " . $a['id']);
 mysqli_query($conn, "UPDATE incidencias SET fecha_deteccion = '2026-11-03' WHERE id_incidencia = " . $b['id']);
 mysqli_query($conn, "UPDATE incidencias SET fecha_deteccion = '2026-10-20' WHERE id_incidencia = " . $d['id']);
 
-// ---------------------------------------------------------------
 titulo("Incidencias reportadas por vecinos");
 
 $notificacion = new Notificacion($conn);
@@ -138,14 +128,12 @@ verificar($notificacion->vecinoDeLaIncidencia($c['id']) == 4 && $notificacion->v
 verificar($notificacion->yaAviso(4, 6), "Detecta que ya reportó ese contenedor");
 verificar(!$notificacion->yaAviso(4, 8), "En otro contenedor todavía no reportó");
 
-// ---------------------------------------------------------------
 titulo("Filtros");
 
 verificar(count($incidencia->obtenerTodas("Abierta")) == 4, "Filtra por estado: 4 abiertas");
 verificar(count($incidencia->obtenerTodas("", 2)) == 2, "Historial del contenedor 2: 2 incidencias");
 verificar(count($incidencia->obtenerTodas("", "", "2026-10-01", "2026-10-31")) == 1, "Filtra por fechas: 1 en octubre");
 
-// ---------------------------------------------------------------
 titulo("Alertas");
 
 $alerta = new Alerta($conn);
@@ -162,7 +150,6 @@ verificar(count($alerta->repuestosConPocoStock()) == 2, "Avisa de los 2 repuesto
 $incidencia->modificarSeguimiento($d['id'], "Abierta", "Alta", 1);
 verificar(count($alerta->delRecolector(3)) == 1, "Al asignarla a la cuadrilla de la recolectora, le aparece a ella");
 
-// ---------------------------------------------------------------
 titulo("Seguimiento de incidencias");
 
 $modificada = $incidencia->modificarSeguimiento($b['id'], "En proceso", "Alta", 1);
@@ -185,7 +172,6 @@ $incidencia->modificarSeguimiento($c['id'], "Resuelta", "Media", null);
 verificar(!$notificacion->yaAviso(4, 6), "Cuando se resuelve, la vecina puede volver a reportar ese contenedor");
 verificar(count($alerta->avisosDelVecino(4)) == 1, "La vecina tiene la novedad de que se resolvió");
 
-// ---------------------------------------------------------------
 titulo("Estadísticas");
 
 $estadistica = new Estadistica($conn);
@@ -204,7 +190,6 @@ verificar($estadistica->resueltasDelMes(date("Y-m")) == 2, "Cuenta las resueltas
 verificar(count($estadistica->sinResolverPorMunicipio()) == 2, "Incidencias sin resolver en 2 municipios");
 verificar(count($estadistica->porTipo("2026-10")) == 1, "En octubre hubo 1 tipo de incidencia");
 
-// ---------------------------------------------------------------
 titulo("Repuestos");
 
 $repuesto = new Repuesto($conn);
@@ -220,7 +205,6 @@ verificar($nuevo['cantidad'] == 10 && $nuevo['residuo'] == null && $nuevo['insta
 $repuesto->eliminar($nuevo['id']);
 verificar($repuesto->obtenerPorId($nuevo['id']) == null, "Lo borra");
 
-// ---------------------------------------------------------------
 titulo("Volumen recolectado");
 
 verificar(contarFilas($conn, "SELECT * FROM recolecciones") == 192, "Hay 192 recolecciones simuladas");
@@ -234,7 +218,6 @@ verificar(count($estadistica->vaciadosPorContenedor("2026-11-01", "2026-11-30"))
 $contenedor->registrarRecoleccion(1, 150.5);
 verificar(contarFilas($conn, "SELECT * FROM recolecciones WHERE kilos = 150.5") == 1, "Guarda una recolección nueva");
 
-// ---------------------------------------------------------------
 titulo("Parámetros y mensajes");
 
 $parametro = new Parametro($conn);

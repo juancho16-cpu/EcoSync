@@ -1,6 +1,4 @@
 <?php
-// Modelo Auditoria: guarda lo que pasa en el sistema (quien entro, quien fallo la contraseña,
-// quien creo o borro un usuario, quien cambio un rol...). Sirve para saber quien hizo que y cuando.
 
 class Auditoria
 {
@@ -11,10 +9,9 @@ class Auditoria
         $this->conn = $conn;
     }
 
-    // Guarda un evento. $idUsuario puede ser null (por ejemplo un login fallido)
     public function registrar($idUsuario, $email, $accion, $detalle)
     {
-        // La IP de la computadora o celular que hizo el pedido
+        
         $ip = $_SERVER['REMOTE_ADDR'] ?? "local";
 
         $stmt = $this->conn->prepare("INSERT INTO auditoria (id_usuario, email, accion, detalle, ip) VALUES (?, ?, ?, ?, ?)");
@@ -22,7 +19,6 @@ class Auditoria
         $stmt->execute();
     }
 
-    // Devuelve los ultimos eventos (los mas nuevos primero). Si viene $accion, solo los de esa accion.
     public function obtenerUltimos($limite, $accion)
     {
         $sql = "SELECT a.id_auditoria, a.fecha, a.email, a.accion, a.detalle, a.ip,
@@ -50,8 +46,6 @@ class Auditoria
         return $eventos;
     }
 
-    // Cuenta los intentos fallidos de un correo en los ultimos $minutos.
-    // Solo cuenta los que pasaron despues del ultimo inicio de sesion correcto.
     public function contarIntentosFallidos($email, $minutos)
     {
         $stmt = $this->conn->prepare("SELECT COUNT(*) AS cantidad FROM auditoria

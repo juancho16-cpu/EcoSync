@@ -1,13 +1,4 @@
 #!/bin/bash
-# =====================================================================
-# Revision automatica de SiGeRU contra el OWASP Top 10 (2021)
-#
-# Hace pedidos de verdad al sistema (como lo haria un atacante) y muestra OK o FALLA en cada prueba.
-# Usa los usuarios de prueba, asi que se corre con los datos de prueba cargados.
-#
-# Uso: bash revision_owasp.sh                       (http://localhost)
-#      bash revision_owasp.sh https://sigeru.local  (en el servidor con HTTPS)
-# =====================================================================
 
 BASE=${1:-http://localhost}
 U="$BASE/sigeru-api-usuarios/api.php"

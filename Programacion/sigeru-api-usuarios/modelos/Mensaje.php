@@ -1,5 +1,4 @@
 <?php
-// Modelo Mensaje: las notificaciones que le llegan a cada usuario (la campana del menu)
 
 class Mensaje
 {
@@ -10,7 +9,6 @@ class Mensaje
         $this->conn = $conn;
     }
 
-    // Los ultimos 30 mensajes de un usuario, del mas nuevo al mas viejo
     public function obtenerDelUsuario($idUsuario)
     {
         $stmt = $this->conn->prepare("SELECT id_mensaje AS id, texto, enlace, leido, fecha FROM mensajes
@@ -26,7 +24,6 @@ class Mensaje
         return $mensajes;
     }
 
-    // Cuantos mensajes no leyo todavia
     public function contarSinLeer($idUsuario)
     {
         $stmt = $this->conn->prepare("SELECT COUNT(*) AS cantidad FROM mensajes WHERE id_usuario = ? AND leido = FALSE");
@@ -35,7 +32,6 @@ class Mensaje
         return $stmt->get_result()->fetch_assoc()['cantidad'];
     }
 
-    // Marca un mensaje como leido (solo si es de ese usuario)
     public function marcarLeido($idMensaje, $idUsuario)
     {
         $stmt = $this->conn->prepare("UPDATE mensajes SET leido = TRUE WHERE id_mensaje = ? AND id_usuario = ?");
@@ -50,7 +46,6 @@ class Mensaje
         $stmt->execute();
     }
 
-    // Le manda un mensaje a un usuario
     public function enviarAUsuario($idUsuario, $texto, $enlace)
     {
         $stmt = $this->conn->prepare("INSERT INTO mensajes (id_usuario, texto, enlace, fecha) VALUES (?, ?, ?, NOW())");
@@ -58,7 +53,6 @@ class Mensaje
         $stmt->execute();
     }
 
-    // Le manda el mismo mensaje a todos los usuarios activos de un rol
     public function enviarARol($rol, $texto, $enlace)
     {
         $stmt = $this->conn->prepare("SELECT id_usuario FROM usuarios WHERE rol = ? AND estado = 'Activo'");

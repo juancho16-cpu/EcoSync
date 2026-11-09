@@ -1,7 +1,4 @@
 <?php
-// Tests unitarios de los modelos de la API de Recoleccion.
-// Usan la base de datos de prueba "sigeru_test", asi no se tocan los datos reales.
-// Se corren con: php tests/test_modelos.php
 
 require_once __DIR__ . "/funciones_test.php";
 require_once __DIR__ . "/../modelos/Camion.php";
@@ -11,7 +8,6 @@ require_once __DIR__ . "/../modelos/Mensaje.php";
 
 $conn = crearBaseDePrueba();
 
-// ---------------------------------------------------------------
 titulo("Camiones");
 
 $camion = new Camion($conn);
@@ -26,7 +22,6 @@ verificar($nuevo['matricula'] == "SBE 3456", "La matrícula se guarda en mayúsc
 $modificado = $camion->modificar($idCamion, ["matricula" => "SBE 3456", "estado" => "En mantenimiento", "disponibilidad" => "No disponible", "capacidad_carga" => ""]);
 verificar($modificado['estado'] == "En mantenimiento" && $modificado['capacidad_carga'] == null, "Modifica el camión");
 
-// ---------------------------------------------------------------
 titulo("Mantenimientos (entidad débil de Camión)");
 
 $mantenimiento = new Mantenimiento($conn);
@@ -51,7 +46,6 @@ $camion->eliminar($idCamion);
 verificar($camion->obtenerPorId($idCamion) == null, "Borra el camión");
 verificar(count($mantenimiento->obtenerDelCamion($idCamion)) == 0, "Sus mantenimientos se borran solos (ON DELETE CASCADE)");
 
-// ---------------------------------------------------------------
 titulo("Recorridos (asignar rutas a cuadrillas)");
 
 $recorrido = new Recorrido($conn);
@@ -75,7 +69,6 @@ verificar($nuevo['cuadrilla'] == "Cuadrilla Centro" && $nuevo['ruta'] == "Ruta C
 verificar($nuevo['hora_fin'] == null, "Una hora vacía se guarda como NULL");
 verificar(count($nuevo['zonas']) == 0 && count($nuevo['contenedores']) == 0, "Si no se eligen zonas, el recorrido empieza sin zonas ni contenedores");
 
-// Le damos las zonas Malvín (6) y Carrasco (7), que eran del recorrido 2
 $conZonas = $recorrido->modificar($id, ["id_cuadrilla" => 1, "id_ruta" => 2, "id_camion" => 1, "fecha_asignacion" => "2026-11-10", "zonas" => [6, 7]]);
 verificar(count($conZonas['zonas']) == 2 && count($conZonas['contenedores']) == 2, "Al elegir las zonas Malvín y Carrasco trae sus 2 contenedores");
 verificar(count($recorrido->obtenerPorId(2)['zonas']) == 2, "Esas zonas salen del recorrido 2 (cada zona la recorre un solo recorrido)");

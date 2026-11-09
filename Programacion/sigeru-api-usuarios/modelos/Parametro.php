@@ -1,6 +1,4 @@
 <?php
-// Modelo Parametro: valores del sistema que el administrador puede cambiar
-// (dias para avisar de un desborde, si hay que aprobar los registros, idioma...)
 
 class Parametro
 {
@@ -22,7 +20,6 @@ class Parametro
         return $parametros;
     }
 
-    // Devuelve el valor de un parametro. Si no existe devuelve $porDefecto.
     public function obtener($nombre, $porDefecto)
     {
         $stmt = $this->conn->prepare("SELECT valor FROM parametros WHERE nombre = ?");

@@ -1,12 +1,4 @@
 <?php
-// Tests de los endpoints de la API de Gestion.
-// Le hacen pedidos a la API como si fueran el navegador y revisan las respuestas.
-// Necesitan Apache y MySQL prendidos, con la base de datos y los datos de prueba importados.
-// Lo que crean lo borran al final.
-//
-// Se corren con: php tests/test_api.php
-// Si las APIs estan en otra direccion:
-//   php tests/test_api.php http://localhost:8080/sigeru-api-gestion/api.php http://localhost:8080/sigeru-api-usuarios/api.php
 
 require_once __DIR__ . "/funciones_test.php";
 
@@ -20,18 +12,15 @@ if (isset($argv[2])) {
 }
 echo "Probando la API en $api\n";
 
-// La sesion se inicia en la API de Usuarios y la comparten las dos APIs
 entrar($apiUsuarios, "admin", "admin@sigeru.uy", "admin123");
 entrar($apiUsuarios, "operario", "operario@sigeru.uy", "123456");
 entrar($apiUsuarios, "recolector", "recolector@sigeru.uy", "123456");
 entrar($apiUsuarios, "vecino", "vecino@sigeru.uy", "123456");
 
-// Guardamos el ultimo mensaje y la ultima recoleccion, para borrar al final lo que creen los tests
 $base = conectarBaseReal();
 $ultimoMensaje = mysqli_fetch_assoc(mysqli_query($base, "SELECT COALESCE(MAX(id_mensaje), 0) AS id FROM mensajes"))['id'];
 $ultimaRecoleccion = mysqli_fetch_assoc(mysqli_query($base, "SELECT COALESCE(MAX(id_recoleccion), 0) AS id FROM recolecciones"))['id'];
 
-// ---------------------------------------------------------------
 titulo("Permisos por rol");
 
 $r = pedir("GET", $api . "/contenedores", null, "nadie");
@@ -49,7 +38,6 @@ verificar($r['codigo'] == 403, "El recolector no puede ver la lista de operarios
 $r = pedir("GET", $api . "/centros", null, "recolector");
 verificar($r['codigo'] == 200, "El recolector puede ver los centros de acopio");
 
-// ---------------------------------------------------------------
 titulo("CRUD de contenedores (operario)");
 
 $r = pedir("POST", $api . "/contenedores", ["calle" => "Calle de prueba 123", "zona" => "Centro", "municipio" => "B", "estado" => "Funcional", "id_residuo" => 2, "latitud" => "-34.9", "longitud" => "-56.19"], "operario");
@@ -74,7 +62,6 @@ verificar($r['codigo'] == 400, "Con una ubicación fuera de Montevideo devuelve 
 $r = pedir("POST", $api . "/contenedores", ["calle" => "x", "zona" => "y", "estado" => "Funcional", "id_residuo" => 1, "municipio" => "Z"], "operario");
 verificar($r['codigo'] == 400, "Con un municipio que no existe devuelve 400");
 
-// Le reportamos una incidencia al contenedor de prueba: asi no se puede borrar
 pedir("POST", $api . "/incidencias", ["id_contenedor" => $idContenedor, "problema" => "Roto", "prioridad" => "Baja", "descripcion" => "Prueba del test: tapa rota"], "operario");
 $r = pedir("DELETE", $api . "/contenedores?id=" . $idContenedor, null, "operario");
 verificar($r['codigo'] == 409, "No deja borrar un contenedor con incidencias (409)");
@@ -86,7 +73,6 @@ verificar($r['codigo'] == 200, "Borra el contenedor de prueba");
 $r = pedir("GET", $api . "/contenedores?id=" . $idContenedor, null, "operario");
 verificar($r['codigo'] == 404, "El contenedor borrado ya no existe (404)");
 
-// ---------------------------------------------------------------
 titulo("CRUD de centros de acopio (administrador)");
 
 $r = pedir("POST", $api . "/centros", ["nombre" => "Centro de prueba", "capacidad_actual" => "100", "capacidad_max" => "500", "id_operario" => 2, "residuos" => [1, 2]], "admin");
@@ -105,7 +91,6 @@ verificar($r['codigo'] == 200 && $r['json']['centro']['nombre'] == "Centro de pr
 $r = pedir("DELETE", $api . "/centros?id=" . $idCentro, null, "admin");
 verificar($r['codigo'] == 200, "Borra el centro de prueba");
 
-// ---------------------------------------------------------------
 titulo("CRUD de maquinaria (operario)");
 
 $r = pedir("POST", $api . "/maquinaria", ["nombre" => "Máquina de prueba", "tipo" => "Prensa", "estado" => "Operativa", "id_instalacion" => 1], "operario");
@@ -124,7 +109,6 @@ verificar($r['codigo'] == 200 && $r['json']['maquina']['estado'] == "En reparaci
 $r = pedir("DELETE", $api . "/maquinaria?id=" . $idMaquina, null, "operario");
 verificar($r['codigo'] == 200, "Borra la máquina de prueba");
 
-// ---------------------------------------------------------------
 titulo("Reportar incidencias");
 
 $r = pedir("GET", $api . "/incidencias", null, "nadie");
@@ -148,7 +132,6 @@ verificar($r['codigo'] == 404, "Ya no hay un apartado separado de avisos: todo s
 $r = pedir("POST", $api . "/vaciar?id=99999", null, "recolector");
 verificar($r['codigo'] == 404, "Vaciar un contenedor que no existe devuelve 404");
 
-// ---------------------------------------------------------------
 titulo("Seguimiento de incidencias");
 
 $r = pedir("POST", $api . "/incidencias", ["id_contenedor" => 5, "problema" => "Roto", "prioridad" => "Baja", "descripcion" => "Prueba del test"], "operario");
@@ -205,10 +188,8 @@ verificar($r['codigo'] == 409, "Una incidencia resuelta ya no se puede cambiar (
 $r = pedir("PUT", $api . "/incidencias?id=" . $idIncidencia, ["estado" => "Abierta"], "vecino");
 verificar($r['codigo'] == 403, "El vecino no puede hacer el seguimiento (403)");
 
-// Borramos la incidencia de prueba (la API no tiene para borrar incidencias)
 mysqli_query($base, "DELETE FROM incidencias WHERE id_incidencia = " . $idIncidencia);
 
-// ---------------------------------------------------------------
 titulo("Estadísticas y alertas");
 
 $r = pedir("GET", $api . "/estadisticas?mes=2026-11", null, "operario");
@@ -229,7 +210,6 @@ verificar($r['codigo'] == 200, "El vecino puede pedir sus alertas");
 $r = pedir("GET", $api . "/alertas", null, "nadie");
 verificar($r['codigo'] == 401, "Sin sesión no hay alertas (401)");
 
-// ---------------------------------------------------------------
 titulo("Repuestos");
 
 $r = pedir("GET", $api . "/repuestos", null, "recolector");
@@ -269,7 +249,6 @@ verificar($r['codigo'] == 200 && $r['json']['repuesto']['cantidad'] == 9, "Lo mo
 $r = pedir("DELETE", $api . "/repuestos?id=" . $idRepuesto, null, "operario");
 verificar($r['codigo'] == 200, "Lo borra");
 
-// ---------------------------------------------------------------
 titulo("Volumen recolectado e incidencias de vecinos");
 
 $r = pedir("GET", $api . "/volumen?desde=2026-11-01&hasta=2026-11-30", null, "operario");
@@ -309,7 +288,6 @@ $r = pedir("PUT", $api . "/incidencias?id=" . $idDeLaVecina, ["estado" => "En pr
 $r = pedir("GET", $apiUsuarios . "/mensajes", null, "vecino");
 verificar(str_contains($r['json']['mensajes'][0]['texto'], "está en proceso"), "Cuando el operario la toma, a la vecina le llega que está en proceso");
 
-// Borramos lo que crearon los tests: el aviso (y su incidencia), las notificaciones y la recoleccion
 mysqli_query($base, "DELETE FROM notificaciones WHERE descripcion LIKE '%Prueba del test%'");
 mysqli_query($base, "DELETE FROM incidencias WHERE id_contenedor = 13 AND descripcion LIKE '%Prueba del test%'");
 mysqli_query($base, "UPDATE contenedores SET estado = 'Funcional' WHERE id_contenedor = 13");

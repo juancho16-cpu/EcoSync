@@ -1,7 +1,4 @@
 <?php
-// Modelo Notificacion: guarda que vecino reporto cada incidencia.
-// En el MER es una entidad debil de Vecino: su clave es (id_usuario, id_notificacion).
-// Cada reporte de un vecino genera una incidencia (relacion Genera2).
 
 class Notificacion
 {
@@ -12,7 +9,6 @@ class Notificacion
         $this->conn = $conn;
     }
 
-    // Devuelve true si el vecino ya aviso de ese contenedor y todavia no se resolvio
     public function yaAviso($idUsuario, $idContenedor)
     {
         $stmt = $this->conn->prepare("SELECT n.id_notificacion FROM notificaciones n
@@ -23,8 +19,6 @@ class Notificacion
         return $stmt->get_result()->fetch_assoc() != null;
     }
 
-    // Cuando el personal cambia el estado de una incidencia, el aviso del vecino cambia igual
-    // (Recibida -> En proceso -> Resuelta)
     public function cambiarEstado($idIncidencia, $estado)
     {
         if ($estado == "Abierta") {
@@ -35,7 +29,6 @@ class Notificacion
         $stmt->execute();
     }
 
-    // Devuelve el id del vecino que aviso de esa incidencia (o null si la registro el personal)
     public function vecinoDeLaIncidencia($idIncidencia)
     {
         $stmt = $this->conn->prepare("SELECT id_usuario FROM notificaciones WHERE id_incidencia = ?");
@@ -49,16 +42,14 @@ class Notificacion
         return $fila['id_usuario'];
     }
 
-    // Guarda el aviso. Como es entidad debil, su numero es el siguiente de ese vecino (1, 2, 3...).
     public function agregar($idUsuario, $idIncidencia, $descripcion)
     {
-        // Buscamos el numero mas alto de los avisos de ese vecino
+        
         $stmt = $this->conn->prepare("SELECT MAX(id_notificacion) AS ultimo FROM notificaciones WHERE id_usuario = ?");
         $stmt->bind_param("i", $idUsuario);
         $stmt->execute();
         $ultimo = $stmt->get_result()->fetch_assoc()['ultimo'];
 
-        // Si es su primer aviso, el numero es 1
         if ($ultimo == null) {
             $numero = 1;
         } else {

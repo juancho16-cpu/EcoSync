@@ -1,11 +1,9 @@
 <?php
-// Modelo Contenedor: guarda, busca, modifica y borra contenedores en la base de datos
 
 class Contenedor
 {
     private $conn;
 
-    // Consulta que trae el contenedor con el nombre de su tipo de residuo
     private $consulta = "SELECT c.id_contenedor AS id, c.calle, c.zona, c.municipio, c.estado, c.capacidad,
                                 c.id_residuo, t.nombre AS residuo, c.latitud, c.longitud, c.ultima_recoleccion
                          FROM contenedores c
@@ -35,7 +33,6 @@ class Contenedor
         return $stmt->get_result()->fetch_assoc();
     }
 
-    // Tipos de residuo (regla RNE01 del MER: cada contenedor guarda un solo tipo)
     public function obtenerTiposResiduo()
     {
         $result = mysqli_query($this->conn, "SELECT id_residuo, nombre FROM tipos_residuo ORDER BY nombre");
@@ -47,7 +44,6 @@ class Contenedor
         return $tipos;
     }
 
-    // Devuelve true si existe ese tipo de residuo
     public function existeResiduo($idResiduo)
     {
         $stmt = $this->conn->prepare("SELECT id_residuo FROM tipos_residuo WHERE id_residuo = ?");
@@ -56,7 +52,6 @@ class Contenedor
         return $stmt->get_result()->fetch_assoc() != null;
     }
 
-    // Devuelve true si el contenedor tiene incidencias registradas
     public function tieneIncidencias($id)
     {
         $stmt = $this->conn->prepare("SELECT id_incidencia FROM incidencias WHERE id_contenedor = ?");
@@ -83,7 +78,6 @@ class Contenedor
         return $this->obtenerPorId($id);
     }
 
-    // Cambia solo el estado del contenedor (por ejemplo cuando reportan que esta roto)
     public function cambiarEstado($id, $estado)
     {
         $stmt = $this->conn->prepare("UPDATE contenedores SET estado = ? WHERE id_contenedor = ?");
@@ -91,8 +85,6 @@ class Contenedor
         $stmt->execute();
     }
 
-    // El recolector lo vacio: queda Funcional y se guarda la fecha y hora de ahora
-    // Guarda cuantos kilos se sacaron al vaciar el contenedor (datos simulados)
     public function registrarRecoleccion($id, $kilos)
     {
         $stmt = $this->conn->prepare("INSERT INTO recolecciones (id_contenedor, fecha, kilos) VALUES (?, NOW(), ?)");
@@ -116,7 +108,6 @@ class Contenedor
         $stmt->execute();
     }
 
-    // Pone los datos del formulario en la consulta. Los campos vacios se guardan como NULL.
     private function cargarDatos($stmt, $datos, $id)
     {
         $calle = $datos['calle'];

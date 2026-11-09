@@ -1,4 +1,3 @@
-// Controlador de la pagina de centros de acopio
 
 let listaCentros = [];
 let idEditando = null; // null cuando se esta agregando uno nuevo
@@ -7,7 +6,6 @@ async function iniciar() {
     const haySesion = await revisarSesion();
     if (!haySesion) return;
 
-    // Los datos del formulario solo hacen falta si puede agregar o editar
     if (puedeEditar()) {
         try {
             const operarios = await obtenerOperarios();
@@ -34,7 +32,6 @@ async function cargarCentros() {
 function buscar() {
     const texto = document.getElementById("buscador").value.toLowerCase();
 
-    // Guardamos solo los que tienen el texto buscado
     const filtrados = [];
     for (const c of listaCentros) {
         const contenido = (c.nombre + " " + c.calle + " " + c.zona).toLowerCase();
@@ -52,7 +49,6 @@ function nuevoCentro() {
     abrirModal();
 }
 
-// Abre el formulario con los datos del centro elegido
 function editarCentro(id) {
     const c = buscarPorId(listaCentros, id);
     idEditando = id;
@@ -64,7 +60,6 @@ function editarCentro(id) {
     document.getElementById("capacidad_max").value = c.capacidad_max ? Number(c.capacidad_max) : "";
     document.getElementById("id_operario").value = c.id_operario ?? "";
 
-    // Marcamos los tipos de residuo que recibe el centro
     const casillas = document.querySelectorAll("input[name='residuo']");
     for (const casilla of casillas) {
         casilla.checked = false;
@@ -95,7 +90,6 @@ async function borrarCentroElegido(id) {
 document.getElementById("formCentro").addEventListener("submit", async function (evento) {
     evento.preventDefault();
 
-    // Guardamos los tipos de residuo que estan marcados
     const residuos = [];
     const casillas = document.querySelectorAll("input[name='residuo']");
     for (const casilla of casillas) {
@@ -125,7 +119,6 @@ document.getElementById("formCentro").addEventListener("submit", async function 
         mostrarMensaje(respuesta.mensaje, false);
         cargarCentros();
     } catch (error) {
-        // Si hay un error con la ventana abierta, el mensaje no se ve, por eso usamos alert
         alert(error.message);
     }
 });

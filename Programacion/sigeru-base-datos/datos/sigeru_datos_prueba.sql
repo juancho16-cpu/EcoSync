@@ -1,18 +1,7 @@
--- =====================================================================
--- SiGeRU - Datos de prueba
--- Importar DESPUES de ddl/sigeru_ddl.sql
---
--- Usuarios de prueba:
---   admin@sigeru.uy      / admin123  (Administrador)
---   operario@sigeru.uy   / 123456    (Operario)
---   recolector@sigeru.uy / 123456    (Recolector)
---   vecino@sigeru.uy     / 123456    (Vecino)
--- =====================================================================
 
 USE sigeru;
 SET NAMES utf8mb4;
 
--- ---------- Usuarios ----------
 INSERT INTO usuarios (id_usuario, primer_nombre, primer_apellido, email, telefono, contrasena, rol) VALUES
 (1, 'Usuario', 'Administrador', 'admin@sigeru.uy', '099111111', '$2y$10$eIUne.OuwuHmfbKqMtfv..EDwPH7ITgsi3PCJm4yns3BUxOrhR1b.', 'Administrador'),
 (2, 'Martín', 'Pereira', 'operario@sigeru.uy', '099222222', '$2y$10$yTNFUbFLVtSgsCdnvGteAuECBj8uIGpJy4g1MoPYL2iK.8KFXEW8O', 'Operario'),
@@ -23,7 +12,6 @@ INSERT INTO administradores (id_usuario) VALUES (1);
 INSERT INTO operarios (id_usuario, especialidad) VALUES (2, 'Mantenimiento de contenedores');
 INSERT INTO vecinos (id_usuario, calle, zona) VALUES (4, 'Av. Brasil 2500', 'Pocitos');
 
--- ---------- Cuadrillas y rutas ----------
 INSERT INTO cuadrillas (id_cuadrilla, nombre) VALUES
 (1, 'Cuadrilla Centro'),
 (2, 'Cuadrilla Este');
@@ -34,7 +22,6 @@ INSERT INTO rutas (id_ruta, nombre, descripcion, distancia) VALUES
 (1, 'Ruta Centro', 'Ciudad Vieja, Centro y Tres Cruces', 12.50),
 (2, 'Ruta Costa', 'Punta Carretas, Pocitos, Malvín y Carrasco', 18.00);
 
--- ---------- Camiones (latitud y longitud: posicion simulada en el mapa) ----------
 INSERT INTO camiones (id_camion, matricula, estado, disponibilidad, capacidad_carga, latitud, longitud) VALUES
 (1, 'SBA 1234', 'Operativo', 'Disponible', 10000, -34.874000, -56.169000),
 (2, 'SBC 5678', 'En mantenimiento', 'No disponible', 8000, -34.872000, -56.172000),
@@ -44,12 +31,10 @@ INSERT INTO camiones (id_camion, matricula, estado, disponibilidad, capacidad_ca
 INSERT INTO mantenimientos (id_camion, nro_mantenimiento, tipo, costo, descripcion, fecha) VALUES
 (2, 1, 'Preventivo', 15000, 'Cambio de aceite y filtros', '2026-10-20');
 
--- La cuadrilla Centro (donde esta la recolectora de prueba) hace la Ruta Centro con el camion SBF 3344
 INSERT INTO recorridos (id_recorrido, id_cuadrilla, id_ruta, id_camion, fecha_asignacion, hora_inicio, hora_fin) VALUES
 (1, 1, 1, 4, '2026-11-06', '06:00', '12:00'),
 (2, 2, 2, 3, '2026-11-06', '07:00', '13:00');
 
--- Zonas (barrios) que recorre cada recorrido
 INSERT INTO zonas (id_zona, nombre, zona_asignada, id_recorrido) VALUES
 (1, 'Ciudad Vieja', 'Municipio B', 1),
 (2, 'Centro', 'Municipio B', 1),
@@ -59,14 +44,12 @@ INSERT INTO zonas (id_zona, nombre, zona_asignada, id_recorrido) VALUES
 (6, 'Malvín', 'Municipio E', 2),
 (7, 'Carrasco', 'Municipio E', 2);
 
--- ---------- Tipos de residuo y contenedores ----------
 INSERT INTO tipos_residuo (id_residuo, nombre, descripcion) VALUES
 (1, 'Orgánico', 'Restos de comida y residuos biodegradables'),
 (2, 'Reciclable', 'Plástico, papel, cartón, vidrio y metal'),
 (3, 'No reciclable', 'Residuos generales sin clasificar'),
 (4, 'Peligroso', 'Pilas, baterías y productos químicos');
 
--- Contenedores en distintos barrios y municipios de Montevideo
 INSERT INTO contenedores (id_contenedor, calle, zona, municipio, estado, capacidad, id_residuo, latitud, longitud, ultima_recoleccion) VALUES
 (1, 'Av. 18 de Julio 1200', 'Centro', 'B', 'Funcional', 1000, 2, -34.905500, -56.188900, '2026-11-05 07:30'),
 (2, 'Rambla República de México 5500', 'Carrasco', 'E', 'Funcional', 1200, 3, -34.892800, -56.056500, '2026-11-01 08:00'),
@@ -85,9 +68,6 @@ INSERT INTO contenedores (id_contenedor, calle, zona, municipio, estado, capacid
 (15, 'Av. 8 de Octubre 3500', 'Unión', 'E', 'Funcional', 1000, 4, -34.876800, -56.144900, '2026-11-05 09:00'),
 (16, 'Av. Rivera 3000', 'Pocitos', 'CH', 'Funcional', 1000, 4, -34.897900, -56.159500, '2026-11-05 09:30');
 
--- No hay incidencias de prueba: se cargan desde el sistema (las reporta el personal o los vecinos).
-
--- ---------- Instalaciones ----------
 INSERT INTO instalaciones (id_instalacion, nombre, calle, zona, capacidad_actual, capacidad_max, id_operario, latitud, longitud) VALUES
 (1, 'Centro de Acopio Norte', 'Camino Carrasco 4500', 'Malvín Norte', 3500, 10000, 2, -34.870900, -56.106600),
 (2, 'Vertedero Felipe Cardoso', 'Camino Felipe Cardoso', 'Punta de Rieles', 50000, 200000, 2, -34.817600, -56.121400),
@@ -107,8 +87,6 @@ INSERT INTO centro_vertedero (id_centro, id_vertedero) VALUES (1, 2), (3, 2);
 INSERT INTO plantas_procesamiento (id_planta, nombre, calle, zona, id_centro) VALUES
 (1, 'Planta de Reciclaje Oeste', 'Ruta 1 km 10', 'Paso de la Arena', 1);
 
--- ---------- Agregado en la 3ra entrega ----------
-
 INSERT INTO parametros (nombre, valor, descripcion) VALUES
 ('dias_alerta_desborde', '2', 'Días que puede estar un contenedor desbordado sin atender antes de avisar'),
 ('porcentaje_centro_lleno', '80', 'Porcentaje de capacidad desde el que se avisa que un centro está casi lleno'),
@@ -124,7 +102,6 @@ INSERT INTO repuestos (id_repuesto, nombre, tipo, id_residuo, cantidad, cantidad
 (3, 'Contenedor no reciclable 800 L', 'Contenedor', 3, 4, 2, 3),
 (4, 'Tapa de contenedor', 'Tapa', NULL, 15, 5, 1),
 (5, 'Rueda de contenedor', 'Rueda', NULL, 3, 8, 3);
--- Recolecciones simuladas de octubre y noviembre (kilos que se sacaron cada vez que se vacio un contenedor)
 INSERT INTO recolecciones (id_contenedor, fecha, kilos) VALUES
 (1, '2026-10-01 07:15:00', 170.53),
 (1, '2026-10-04 12:45:00', 157.59),

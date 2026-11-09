@@ -1,4 +1,3 @@
-// Controlador de la pagina de maquinaria
 
 let listaMaquinaria = [];
 let idEditando = null; // null cuando se esta agregando una nueva
@@ -7,7 +6,6 @@ async function iniciar() {
     const haySesion = await revisarSesion();
     if (!haySesion) return;
 
-    // La lista de instalaciones solo hace falta si puede agregar o editar
     if (puedeEditar()) {
         try {
             const instalaciones = await obtenerInstalaciones();
@@ -31,7 +29,6 @@ async function cargarMaquinaria() {
 function buscar() {
     const texto = document.getElementById("buscador").value.toLowerCase();
 
-    // Guardamos solo las que tienen el texto buscado
     const filtrados = [];
     for (const m of listaMaquinaria) {
         const contenido = (m.nombre + " " + m.tipo + " " + m.estado + " " + m.instalacion).toLowerCase();
@@ -49,7 +46,6 @@ function nuevaMaquina() {
     abrirModal();
 }
 
-// Abre el formulario con los datos de la maquina elegida
 function editarMaquina(id) {
     const m = buscarPorId(listaMaquinaria, id);
     idEditando = id;
@@ -97,7 +93,6 @@ document.getElementById("formMaquina").addEventListener("submit", async function
         mostrarMensaje(respuesta.mensaje, false);
         cargarMaquinaria();
     } catch (error) {
-        // Si hay un error con la ventana abierta, el mensaje no se ve, por eso usamos alert
         alert(error.message);
     }
 });
